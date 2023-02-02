@@ -55,6 +55,7 @@ logging.basicConfig(
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 # Setup da conexão com o banco
+logging.info('Conectando ao banco...')
 try:
     db = mysql.connector.connect(
         host=DB_HOST,
@@ -65,6 +66,7 @@ try:
 except mysql.connector.DatabaseError as e:
     logging.critical(f'Erro na conexão do banco: {e}')
     exit()
+logging.info('Conexão estabelecida')
 
 def get_links_by_cnpj(cnpj: str, data: date = date.today()) -> list:
     #Recebe o CNPJ de um participante e retorna uma lista de todos os arquivos recebidos na data especificada
