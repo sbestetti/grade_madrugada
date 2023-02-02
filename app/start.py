@@ -47,7 +47,7 @@ PARTICIPANTES = [
 
 # Constantes de queries
 INSERT_QUERY = '''
-    INSERT INTO registros (
+    INSERT INTO grade_madrugada (
         cnpj, 
         referencia_externa, 
         guid, 
