@@ -12,11 +12,12 @@ DB_USER = os.getenv('DB_USER')
 DB_PASSWD = os.getenv('DB_PASSWD')
 DB_NAME = os.getenv('DB_NAME')
 
-# Configs das requisições HTTP 
+# Configs das requisições HTTP
+API_TOKEN = os.getenv('API_TOKEN')
 URL_REGISTROS = 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/enviados?linesPerPage=2000&page=0'
 URL_ARQUIVO = 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/urls/download/fileControlId?received=false'
 HEADERS = {
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjZXJjLXByb2ZpbGUtc2VydmljZSIsInN1YiI6IjM0OGU3ODczLTdiYjItNDg3Yy04MmJmLTM4OGJmMTNkYzExNCIsInVzZXJfbmFtZSI6IlNpbHZpbyBTZXJnaW8gQmVzdGV0dGkgTmV0byIsInVzZXJfZG9jdW1lbnQiOiIzMTQ1NTY5Mzg0NyIsInBhcnRpY2lwYW50X2RvY3VtZW50IjoiMjMzOTk2MDcwMDAxOTEiLCJwYXJ0aWNpcGFudF9uYW1lIjoiQ0VSQyBDRU5UUkFMIERFIFJFQ0VCw41WRUlTIFMuQS4iLCJpYXQiOjE2NzUxNzYzMzIsImV4cCI6MTY3NTI2MjczMn0.kj2BScWnnrr9jXWJg5JdFrSJMwrp-GUpfD1JP3b5mgY'
+    'Authorization': f'Bearer {API_TOKEN}'
     }
 
 # Configs do logger
