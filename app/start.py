@@ -7,10 +7,10 @@ from datetime import date, datetime
 import os
 
 # Configs do banco
-DB_HOST = '192.168.208.1'
-DB_USER = 'root'
-DB_PASSWD = 'qCFFCFS1'
-DB_DATABASE = 'interop'
+DB_HOST = os.getenv('DB_HOST')
+DB_USER = os.getenv('DB_USER')
+DB_PASSWD = os.getenv('DB_PASSWD')
+DB_NAME = os.getenv('DB_NAME')
 
 # Configs das requisições HTTP 
 URL_REGISTROS = 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/enviados?linesPerPage=2000&page=0'
@@ -58,7 +58,7 @@ db = mysql.connector.connect(
     host=DB_HOST,
     user=DB_USER,
     password=DB_PASSWD,
-    database=DB_DATABASE
+    database=DB_NAME
 )
 
 
