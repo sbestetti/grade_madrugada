@@ -45,6 +45,26 @@ PARTICIPANTES = [
         '06308851000182',
     ]
 
+# Constantes de queries
+INSERT_QUERY = '''
+    INSERT INTO registros (
+        cnpj, 
+        referencia_externa, 
+        guid, 
+        timestamp, 
+        codigo_erro, 
+        desc_erro
+    ) 
+    VALUES (
+        %(cnpj)s, 
+        %(referencia_externa)s, 
+        %(guid)s, 
+        %(date_time)s, 
+        %(error_code)s, 
+        %(error_description)s
+    )
+    '''
+
 # Setup do logger
 logging.basicConfig(
     filename=LOG_FILE,
@@ -125,10 +145,11 @@ def get_files_by_links(link: list) -> None:
 
 def parse_file(participante: str) -> int:
     #Move os dados do arquivo recebido para o banco
+    
+    counter = 0
 
     logging.info(f'Lendo arquivos do participante {participante}')
     participante = participante[0:7]
-    registros = list()
 
     with open('./tmp_file') as arquivo_csv:
         csv_reader = csv.reader(arquivo_csv, delimiter=';')
@@ -146,15 +167,14 @@ def parse_file(participante: str) -> int:
             else:
                 registro['error_code'] = 0
                 registro['error_description'] = None
-            registros.append(registro)
-    
-    insert_query = 'INSERT IGNORE INTO registros (cnpj, referencia_externa, guid, timestamp, codigo_erro, desc_erro) VALUES (%(cnpj)s, %(referencia_externa)s, %(guid)s, %(date_time)s, %(error_code)s, %(error_description)s)'
-    with db.cursor() as cursor:
-        cursor.executemany(insert_query, registros)
-        db.commit()
+            
+            with db.cursor() as cursor:
+                cursor.execute(INSERT_QUERY, registro)
+                db.commit()
+            counter += 1
 
     os.remove('./tmp_file')
-    return len(registros)
+    return counter
 
 
 # Loop principal
