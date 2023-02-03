@@ -151,7 +151,6 @@ def parse_file(participante: str) -> int:
     #Move os dados do arquivo recebido para o banco
 
     logging.info(f'Lendo arquivos do participante {participante}')
-    participante = participante[0:7]
 
     total_de_registros = 0
 
