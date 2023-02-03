@@ -231,7 +231,7 @@ for cnpj in PARTICIPANTES:
             get_files_by_links(link)
         except Exception as e:
             print(f'Erro ao baixar o arquivo {counter} de {qtd_arquivos}. Pulando')
-            next
+            continue
         logging.info(f'Download finalizado. Iniciando processamento')
         numero_de_registros = parse_file(cnpj)
         logging.info(f'{numero_de_registros} registro processados')
