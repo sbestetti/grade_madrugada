@@ -5,12 +5,15 @@ import csv
 import mysql.connector
 from datetime import date, datetime
 import os
+import pandas
+
 
 # Configs do banco
 DB_HOST = os.getenv('DB_HOST')
 DB_USER = os.getenv('DB_USER')
 DB_PASSWD = os.getenv('DB_PASSWD')
 DB_NAME = os.getenv('DB_NAME')
+CHUNK_SIZE = 1000 # Quantidade de registros a serem inseridos em cada INSERT
 
 # Configs das requisições HTTP
 API_TOKEN = os.getenv('API_TOKEN')
@@ -149,30 +152,30 @@ def parse_file(participante: str) -> int:
     logging.info(f'Lendo arquivos do participante {participante}')
     participante = participante[0:7]
 
-    registros = list()
 
-    with open('./tmp_file') as arquivo_csv:
-        csv_reader = csv.reader(arquivo_csv, delimiter=';')
-        for line in csv_reader:
-            new_time = datetime.strptime(line[2], '%Y-%m-%dT%H:%M:%S.%fZ')
-            registro = {}
-            registro['cnpj'] = participante
-            registro['referencia_externa'] = line[0]
-            registro['guid'] = line[1]
-            registro['date_time'] = new_time
-            if line[3] != '0':
-                error_list = line[4].split(';')
-                registro['error_code'] = error_list[0]
-                registro['error_description'] = error_list[1]
-            else:
-                registro['error_code'] = 0
-                registro['error_description'] = None
-            registros.append(registro)
+    with pandas.read_csv('./tmp_file', sep=';', chunksize=CHUNK_SIZE) as reader:
+        for chunk in reader:    
+            registros = list()
+            for line in chunk:
+                new_time = datetime.strptime(line[2], '%Y-%m-%dT%H:%M:%S.%fZ')
+                registro = {}
+                registro['cnpj'] = participante
+                registro['referencia_externa'] = line[0]
+                registro['guid'] = line[1]
+                registro['date_time'] = new_time
+                if line[3] != '0':
+                    error_list = line[4].split(';')
+                    registro['error_code'] = error_list[0]
+                    registro['error_description'] = error_list[1]
+                else:
+                    registro['error_code'] = 0
+                    registro['error_description'] = None
+                registros.append(registro)
 
-        with db.cursor() as cursor:
-            cursor.executemany(INSERT_QUERY, registros)
-            db.commit()
-            
+            with db.cursor() as cursor:
+                cursor.executemany(INSERT_QUERY, registros)
+                db.commit()
+
     os.remove('./tmp_file')
     return 
 
