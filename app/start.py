@@ -47,7 +47,7 @@ PARTICIPANTES = [
 
 # Constantes de queries
 INSERT_QUERY = '''
-    INSERT INTO grade_madrugada (
+    INSERT IGNORE INTO grade_madrugada (
         cnpj, 
         referencia_externa, 
         guid, 
@@ -145,11 +145,11 @@ def get_files_by_links(link: list) -> None:
 
 def parse_file(participante: str) -> int:
     #Move os dados do arquivo recebido para o banco
-    
-    counter = 0
 
     logging.info(f'Lendo arquivos do participante {participante}')
     participante = participante[0:7]
+
+    registros = list()
 
     with open('./tmp_file') as arquivo_csv:
         csv_reader = csv.reader(arquivo_csv, delimiter=';')
@@ -167,14 +167,14 @@ def parse_file(participante: str) -> int:
             else:
                 registro['error_code'] = 0
                 registro['error_description'] = None
-            
-            with db.cursor() as cursor:
-                cursor.execute(INSERT_QUERY, registro)
-                db.commit()
-            counter += 1
+            registros.append(registro)
 
+        with db.cursor() as cursor:
+            cursor.executemany(INSERT_QUERY, registros)
+            db.commit()
+            
     os.remove('./tmp_file')
-    return counter
+    return 
 
 
 # Loop principal
