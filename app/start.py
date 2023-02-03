@@ -153,6 +153,8 @@ def parse_file(participante: str) -> int:
     logging.info(f'Lendo arquivos do participante {participante}')
     participante = participante[0:7]
 
+    total_de_registros = 0
+
     with pandas.read_csv(
     './tmp_file',
     sep=';',
@@ -188,8 +190,10 @@ def parse_file(participante: str) -> int:
                 cursor.executemany(INSERT_QUERY, registros)
                 db.commit()
 
+            total_de_registros = total_de_registros + len(registros)
+
     os.remove('./tmp_file')
-    return 
+    return total_de_registros
 
 
 # Loop principal
