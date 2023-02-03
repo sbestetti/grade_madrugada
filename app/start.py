@@ -191,7 +191,8 @@ def parse_file(participante: str) -> int:
                     cursor.executemany(INSERT_QUERY, registros)
                     db.commit()
             except Exception as e:
-                logging.critical(f'Processando arquivos do participante {e}')
+                logging.critical(f'Erro ao inserir registro no banco: {e}')
+                print(f'Registro atual: {registro}')
                 exit()
 
             total_de_registros = total_de_registros + len(registros)
