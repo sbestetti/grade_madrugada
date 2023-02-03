@@ -186,9 +186,13 @@ def parse_file(participante: str) -> int:
                     registro['desc_erro'] = None                
                 registros.append(registro)
 
-            with db.cursor() as cursor:
-                cursor.executemany(INSERT_QUERY, registros)
-                db.commit()
+            try:
+                with db.cursor() as cursor:
+                    cursor.executemany(INSERT_QUERY, registros)
+                    db.commit()
+            except Exception as e:
+                logging.critical(f'Processando arquivos do participante {e}')
+                exit()
 
             total_de_registros = total_de_registros + len(registros)
 
@@ -210,5 +214,6 @@ for cnpj in PARTICIPANTES:
         logging.info(f'Download finalizado. Iniciando processamento')
         numero_de_registros = parse_file(cnpj)
         logging.info(f'{numero_de_registros} registro processados')
+        counter += 1
 logging.info('Processo finalizado')
             
