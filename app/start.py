@@ -15,14 +15,10 @@ DB_NAME = os.getenv('DB_NAME')
 CHUNK_SIZE = 100000 # Quantidade de registros a serem inseridos em cada INSERT
 
 # Configs das requisições HTTP
-#API_TOKEN = os.getenv('API_TOKEN')
-API_TOKEN = 'eaf6a2cf-0990-4644-9e5a-e61f28a2e6dc'
+API_SECRET = os.getenv('API_SECRET')
 
 URL_REGISTROS = 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/enviados?linesPerPage=2000&page=0'
 URL_ARQUIVO = 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/urls/download/fileControlId?received=false'
-HEADERS = {
-    'Authorization': f'Bearer {API_TOKEN}'
-    }
 
 # Configs do logger
 LOG_FILE = 'script.log'
@@ -92,18 +88,36 @@ except mysql.connector.DatabaseError as e:
     exit()
 logging.info('Conexão estabelecida')
 
+def get_tio_headers() -> dict:
+    # Recebe um secret e retorna um header com autenticação preenchida
+    
+    headers = {
+        'Authorization': f'Basic {API_SECRET}'
+    }
+    form_data = {'grant_type': 'client_credentials'}
+    response = requests.post('https://cad-prd.cerc.inf.br/oauth/token', data=form_data, headers=headers)
+    token = response.json()['access_token']
+    header = {
+    'Authorization': f'Bearer {token}'
+    }
+
+    return header
+
+
 def get_links_by_cnpj(cnpj: str, data: date = date.today()) -> list:
     #Recebe o CNPJ de um participante e retorna uma lista de todos os arquivos recebidos na data especificada
     
     payload = {
-    'companyDocument': cnpj,
-    'fileLayoutId': '73e4ad69-9aa0-43d6-9931-3ef108b0fd0c',
-    'finalDate': data.strftime('%Y-%m-%d'),
-    'startDate': data.strftime('%Y-%m-%d')
+        'companyDocument': cnpj,
+        'fileLayoutId': '73e4ad69-9aa0-43d6-9931-3ef108b0fd0c',
+        'finalDate': data.strftime('%Y-%m-%d'),
+        'startDate': data.strftime('%Y-%m-%d')
     }
 
+    header = get_tio_headers()
+
     try:
-        response = requests.put(URL_REGISTROS, headers=HEADERS, json=payload)
+        response = requests.put(URL_REGISTROS, headers=header, json=payload)
         response.raise_for_status()
     except requests.exceptions.HTTPError:        
         logging.critical(f'Erro HTTP {response.status_code} durante busca dos arquivos do participante {cnpj}. Os dados podem estar incompletos!')
@@ -128,10 +142,12 @@ def get_files_by_links(link: list) -> None:
     #Recebe a lista de arquivos de um participante e salva todos os registros em um arquivo local único
     
     participante = link['participante']
+
+    header = get_tio_headers()
     
     url_atual = URL_ARQUIVO.replace('fileControlId', link['id'])
     try:
-        response = requests.get(url_atual, headers=HEADERS)
+        response = requests.get(url_atual, headers=header)
         response.raise_for_status()
         logging.debug(f'Status da resposta: {response.status_code}')
     except requests.exceptions.HTTPError:
