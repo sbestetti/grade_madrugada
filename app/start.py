@@ -1,7 +1,6 @@
 import requests
 import logging
 import sys
-import csv
 import mysql.connector
 from datetime import date, datetime
 import os
@@ -13,10 +12,12 @@ DB_HOST = os.getenv('DB_HOST')
 DB_USER = os.getenv('DB_USER')
 DB_PASSWD = os.getenv('DB_PASSWD')
 DB_NAME = os.getenv('DB_NAME')
-CHUNK_SIZE = 1000 # Quantidade de registros a serem inseridos em cada INSERT
+CHUNK_SIZE = 100000 # Quantidade de registros a serem inseridos em cada INSERT
 
 # Configs das requisições HTTP
-API_TOKEN = os.getenv('API_TOKEN')
+#API_TOKEN = os.getenv('API_TOKEN')
+API_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjZXJjLXByb2ZpbGUtc2VydmljZSIsInN1YiI6IjM0OGU3ODczLTdiYjItNDg3Yy04MmJmLTM4OGJmMTNkYzExNCIsInVzZXJfbmFtZSI6IlNpbHZpbyBTZXJnaW8gQmVzdGV0dGkgTmV0byIsInVzZXJfZG9jdW1lbnQiOiIzMTQ1NTY5Mzg0NyIsInBhcnRpY2lwYW50X2RvY3VtZW50IjoiMjMzOTk2MDcwMDAxOTEiLCJwYXJ0aWNpcGFudF9uYW1lIjoiQ0VSQyBDRU5UUkFMIERFIFJFQ0VCw41WRUlTIFMuQS4iLCJpYXQiOjE2NzU0Mjg2MDAsImV4cCI6MTY3NTUxNTAwMH0.JsywvInkvuakQl0pb90j1r89R5Qp1z-c_j1r8tVQ9Ag'
+
 URL_REGISTROS = 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/enviados?linesPerPage=2000&page=0'
 URL_ARQUIVO = 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/urls/download/fileControlId?received=false'
 HEADERS = {
@@ -63,8 +64,8 @@ INSERT_QUERY = '''
         %(referencia_externa)s, 
         %(guid)s, 
         %(date_time)s, 
-        %(error_code)s, 
-        %(error_description)s
+        %(codigo_erro)s, 
+        %(desc_erro)s
     )
     '''
 
@@ -152,24 +153,35 @@ def parse_file(participante: str) -> int:
     logging.info(f'Lendo arquivos do participante {participante}')
     participante = participante[0:7]
 
-
-    with pandas.read_csv('./tmp_file', sep=';', chunksize=CHUNK_SIZE) as reader:
-        for chunk in reader:    
-            registros = list()
-            for line in chunk:
-                new_time = datetime.strptime(line[2], '%Y-%m-%dT%H:%M:%S.%fZ')
+    with pandas.read_csv(
+    './tmp_file',
+    sep=';',
+    chunksize=CHUNK_SIZE,
+    names=[
+        'referencia_externa',
+        'guid',
+        'timestamp',
+        'codigo_erro',
+        'desc_erro'
+        ]
+    ) as reader:
+        for chunk in reader:
+            registros = list()    
+            for line in chunk.index:
+                new_time = datetime.strptime(chunk['timestamp'][line], '%Y-%m-%dT%H:%M:%S.%fZ')
                 registro = {}
                 registro['cnpj'] = participante
-                registro['referencia_externa'] = line[0]
-                registro['guid'] = line[1]
+                registro['referencia_externa'] = chunk['referencia_externa'][line]
+                registro['guid'] = chunk['guid'][line]
                 registro['date_time'] = new_time
-                if line[3] != '0':
-                    error_list = line[4].split(';')
-                    registro['error_code'] = error_list[0]
-                    registro['error_description'] = error_list[1]
+                if chunk['codigo_erro'][line] != 0:
+                    erro = chunk['desc_erro'][line]
+                    lista_erro = erro.split(';')
+                    registro['codigo_erro'] = lista_erro[0]
+                    registro['desc_erro'] = lista_erro[1]
                 else:
-                    registro['error_code'] = 0
-                    registro['error_description'] = None
+                    registro['codigo_erro'] = 0
+                    registro['desc_erro'] = None                
                 registros.append(registro)
 
             with db.cursor() as cursor:
