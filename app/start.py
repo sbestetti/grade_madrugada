@@ -135,8 +135,9 @@ def get_files_by_links(link: list) -> None:
         response.raise_for_status()
         logging.debug(f'Status da resposta: {response.status_code}')
     except requests.exceptions.HTTPError:
-        logging.critical(f'Erro HTTP {response.status_code} durante busca dos arquivos do participante {participante}. Os dados podem estar incompletos!')            
-        return
+        message = f'Erro HTTP {response.status_code} durante busca dos arquivos do participante {participante}. Os dados podem estar incompletos!'
+        logging.warning(message)            
+        raise Exception(message)
             
     data = response.json()
     url_do_arquivo = data['result']
@@ -210,7 +211,11 @@ for cnpj in PARTICIPANTES:
     counter = 1
     for link in links:
         logging.info(f'Baixando arquivo {counter} de {qtd_arquivos} do participante {cnpj}')
-        get_files_by_links(link)
+        try:
+            get_files_by_links(link)
+        except Exception as e:
+            print(f'Erro ao baixar o arquivo {counter} de {qtd_arquivos}. Pulando')
+            next
         logging.info(f'Download finalizado. Iniciando processamento')
         numero_de_registros = parse_file(cnpj)
         logging.info(f'{numero_de_registros} registro processados')
