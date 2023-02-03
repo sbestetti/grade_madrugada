@@ -172,8 +172,8 @@ def parse_file(participante: str) -> int:
                 new_time = datetime.strptime(chunk['timestamp'][line], '%Y-%m-%dT%H:%M:%S.%fZ')
                 registro = {}
                 registro['cnpj'] = participante
-                registro['referencia_externa'] = chunk['referencia_externa'][line]
-                registro['guid'] = chunk['guid'][line]
+                registro['referencia_externa'] = str(chunk['referencia_externa'][line])
+                registro['guid'] = str(chunk['guid'][line])
                 registro['date_time'] = new_time
                 if chunk['codigo_erro'][line] != 0:
                     erro = chunk['desc_erro'][line]
