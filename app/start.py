@@ -16,7 +16,7 @@ CHUNK_SIZE = 100000 # Quantidade de registros a serem inseridos em cada INSERT
 
 # Configs das requisições HTTP
 #API_TOKEN = os.getenv('API_TOKEN')
-API_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjZXJjLXByb2ZpbGUtc2VydmljZSIsInN1YiI6IjM0OGU3ODczLTdiYjItNDg3Yy04MmJmLTM4OGJmMTNkYzExNCIsInVzZXJfbmFtZSI6IlNpbHZpbyBTZXJnaW8gQmVzdGV0dGkgTmV0byIsInVzZXJfZG9jdW1lbnQiOiIzMTQ1NTY5Mzg0NyIsInBhcnRpY2lwYW50X2RvY3VtZW50IjoiMjMzOTk2MDcwMDAxOTEiLCJwYXJ0aWNpcGFudF9uYW1lIjoiQ0VSQyBDRU5UUkFMIERFIFJFQ0VCw41WRUlTIFMuQS4iLCJpYXQiOjE2NzU0Mjg2MDAsImV4cCI6MTY3NTUxNTAwMH0.JsywvInkvuakQl0pb90j1r89R5Qp1z-c_j1r8tVQ9Ag'
+API_TOKEN = 'eaf6a2cf-0990-4644-9e5a-e61f28a2e6dc'
 
 URL_REGISTROS = 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/enviados?linesPerPage=2000&page=0'
 URL_ARQUIVO = 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/urls/download/fileControlId?received=false'
