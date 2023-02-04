@@ -51,7 +51,7 @@ INSERT_QUERY = '''
         cnpj, 
         referencia_externa, 
         guid, 
-        timestamp, 
+        horario, 
         codigo_erro, 
         desc_erro
     ) 
@@ -178,7 +178,7 @@ def parse_file(participante: str) -> int:
     names=[
         'referencia_externa',
         'guid',
-        'timestamp',
+        'horario',
         'codigo_erro',
         'desc_erro'
         ]
@@ -186,12 +186,12 @@ def parse_file(participante: str) -> int:
         for chunk in reader:
             registros = list()    
             for line in chunk.index:
-                new_time = datetime.strptime(chunk['timestamp'][line], '%Y-%m-%dT%H:%M:%S.%fZ')
+                new_time = datetime.strptime(chunk['horario'][line], '%Y-%m-%dT%H:%M:%S.%fZ')
                 registro = {}
                 registro['cnpj'] = str(participante)
                 registro['referencia_externa'] = str(chunk['referencia_externa'][line])
                 registro['guid'] = str(chunk['guid'][line])
-                registro['date_time'] = new_time
+                registro['horario'] = new_time
                 if chunk['codigo_erro'][line] != 0:
                     erro = chunk['desc_erro'][line]
                     lista_erro = erro.split(';')
