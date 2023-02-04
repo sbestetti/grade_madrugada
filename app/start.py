@@ -59,7 +59,7 @@ INSERT_QUERY = '''
         %(cnpj)s, 
         %(referencia_externa)s, 
         %(guid)s, 
-        %(date_time)s, 
+        %(horario)s, 
         %(codigo_erro)s, 
         %(desc_erro)s
     )
