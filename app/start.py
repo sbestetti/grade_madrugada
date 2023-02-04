@@ -6,6 +6,11 @@ from datetime import date, datetime
 import os
 import pandas
 
+if len(sys.argv) == 1:
+    DATA_DE_INICIO = datetime.today()
+else:
+    DATA_DE_INICIO = datetime.strptime(sys.argv[1], '%Y-%m-%d')
+
 
 # Configs do banco
 DB_HOST = os.getenv('DB_HOST')
@@ -104,14 +109,14 @@ def get_tio_headers() -> dict:
     return header
 
 
-def get_links_by_cnpj(cnpj: str, data: date = date.today()) -> list:
+def get_links_by_cnpj(cnpj: str) -> list:
     #Recebe o CNPJ de um participante e retorna uma lista de todos os arquivos recebidos na data especificada
     
     payload = {
         'companyDocument': cnpj,
         'fileLayoutId': '73e4ad69-9aa0-43d6-9931-3ef108b0fd0c',
-        'finalDate': data.strftime('%Y-%m-%d'),
-        'startDate': data.strftime('%Y-%m-%d')
+        'finalDate': date.today().strftime('%Y-%m-%d'),
+        'startDate': DATA_DE_INICIO.strftime('%Y-%m-%d')
     }
 
     header = get_tio_headers()
