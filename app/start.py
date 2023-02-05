@@ -117,6 +117,7 @@ def get_links_by_cnpj(cnpj: str) -> list:
     # Recebe o CNPJ de um participante e retorna uma lista
     # de todos os arquivos recebidos na data especificada
 
+    arquivos_recebidos = list()
     payload = {
         'companyDocument': cnpj,
         'fileLayoutId': '73e4ad69-9aa0-43d6-9931-3ef108b0fd0c',
@@ -131,10 +132,9 @@ def get_links_by_cnpj(cnpj: str) -> list:
         response.raise_for_status()
     except requests.exceptions.HTTPError:
         logging.critical(f'Erro HTTP {response.status_code} durante busca dos arquivos do participante {cnpj}. Os dados podem estar incompletos!')
-        return
+        return arquivos_recebidos
 
     data = response.json()
-    arquivos_recebidos = list()
     for arquivo in data['result']['content']:
         _ = {
             'participante': str(arquivo['fileName'])[11:19],
