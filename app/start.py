@@ -57,19 +57,15 @@ PARTICIPANTES = [
 INSERT_QUERY = '''
     INSERT IGNORE INTO grade_madrugada (
         cnpj,
-        referencia_externa,
         guid,
-        horario,
         codigo_erro,
-        desc_erro
+        data
     )
     VALUES (
         %(cnpj)s,
-        %(referencia_externa)s,
         %(guid)s,
-        %(horario)s,
         %(codigo_erro)s,
-        %(desc_erro)s
+        %(data)s
     )
     '''
 
@@ -121,6 +117,7 @@ def get_links_by_cnpj(cnpj: str) -> list:
     # Recebe o CNPJ de um participante e retorna uma lista
     # de todos os arquivos recebidos na data especificada
 
+    arquivos_recebidos = list()
     payload = {
         'companyDocument': cnpj,
         'fileLayoutId': '73e4ad69-9aa0-43d6-9931-3ef108b0fd0c',
@@ -135,10 +132,9 @@ def get_links_by_cnpj(cnpj: str) -> list:
         response.raise_for_status()
     except requests.exceptions.HTTPError:
         logging.critical(f'Erro HTTP {response.status_code} durante busca dos arquivos do participante {cnpj}. Os dados podem estar incompletos!')
-        return
+        return arquivos_recebidos
 
     data = response.json()
-    arquivos_recebidos = list()
     for arquivo in data['result']['content']:
         _ = {
             'participante': str(arquivo['fileName'])[11:19],
@@ -199,16 +195,9 @@ def parse_file(participante: str) -> int:
         for chunk in reader:
             registros = list()
             for line in chunk.index:
-                new_time = datetime.strptime(
-                    chunk['horario'][line], '%Y-%m-%dT%H:%M:%S.%fZ'
-                )
                 registro = {}
                 registro['cnpj'] = str(participante)
-                registro['referencia_externa'] = str(
-                    chunk['referencia_externa'][line]
-                )
                 registro['guid'] = str(chunk['guid'][line])
-                registro['horario'] = new_time
                 if chunk['codigo_erro'][line] != 0:
                     erro = chunk['desc_erro'][line]
                     lista_erro = erro.split(';')
@@ -217,6 +206,10 @@ def parse_file(participante: str) -> int:
                 else:
                     registro['codigo_erro'] = 0
                     registro['desc_erro'] = None
+                new_time = datetime.strptime(
+                    chunk['horario'][line], '%Y-%m-%dT%H:%M:%S.%fZ'
+                )
+                registro['data'] = new_time.date()
                 registros.append(registro)
 
             try:
