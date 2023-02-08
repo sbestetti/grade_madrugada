@@ -267,4 +267,7 @@ for cnpj in PARTICIPANTES:
         numero_de_registros = parse_file(cnpj)
         logging.info(f'{numero_de_registros} registro processados')
         counter += 1
-logging.info('Processo finalizado')
+logging.info('Processamento de arquivos finalizado. Atualizando relatórios...')
+with db.cursor() as cursor:
+    cursor.callproc('update_summary_table')
+logging.info('Relatórios atualizados. Processo finalizado com sucesso!')
