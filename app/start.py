@@ -31,7 +31,7 @@ URL_ARQUIVO = 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/urls/dow
 # Configs do logger
 LOG_FILE = 'script.log'
 LOG_ENCODING = 'utf-8'
-LOG_FORMAT = '%(levelname)s - %(asctime)s IN %(funcName)s: %(message)s'
+LOG_FORMAT = '%(levelname)s;%(asctime)s;%(funcName)s;%(message)s'
 LOG_LEVEL = logging.INFO
 
 # Constante dos participantes a checar
@@ -77,6 +77,20 @@ logging.basicConfig(
     level=LOG_LEVEL
     )
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+
+
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+
+    logging.error(
+        "Uncaught exception",
+        exc_info=(exc_type, exc_value, exc_traceback)
+    )
+
+
+sys.excepthook = handle_exception
 
 # Setup da conexão com o banco
 logging.info('Conectando ao banco...')
