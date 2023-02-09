@@ -235,22 +235,22 @@ def parse_file(participante: str) -> int:
 logging.info('Iniciando a execução')
 for participante in get_participantes():
     cnpj = participante[0]
-    logging.info(f'Processando arquivos do participante {cnpj}')
+    logging.info(f'\n\nProcessando arquivos do participante {cnpj}')
     links = get_links_by_cnpj(cnpj)
     qtd_arquivos = len(links)
     logging.info(
-        f'{qtd_arquivos} arquivos encontrados para o participante {cnpj}'
+        f'{qtd_arquivos} arquivos encontrados.'
     )
     counter = 1
     for link in links:
         logging.info(
-            f'Baixando arquivo {counter} de {qtd_arquivos} do participante {cnpj}'
+            f'Baixando arquivo {counter} de {qtd_arquivos}.'
         )
         try:
             get_files_by_links(link)
         except Exception:
             print(
-                f'Erro ao baixar o arquivo {counter} de {qtd_arquivos}. Pulando'
+                f'Erro no arquivo {counter} de {qtd_arquivos}. Pulando'
             )
             counter += 1
             continue
