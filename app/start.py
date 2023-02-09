@@ -34,25 +34,6 @@ LOG_ENCODING = 'utf-8'
 LOG_FORMAT = '%(levelname)s;%(asctime)s;%(funcName)s;%(message)s'
 LOG_LEVEL = logging.INFO
 
-# Constante dos participantes a checar
-PARTICIPANTES = [
-        '01181521000155',
-        '01425787003898',
-        '02038232000164',
-        '04962772000165',
-        '06167186000154',
-        '10878448000166',
-        '17887874000105',
-        '18189547000142',
-        '20520298000178',
-        '08561701000101',
-        '08561701014323',
-        '17948578000177',
-        '92934215000106',
-        '14380200000121',
-        '06308851000182',
-    ]
-
 # Constantes de queries
 INSERT_QUERY = '''
     INSERT IGNORE INTO grade_madrugada (
@@ -68,6 +49,7 @@ INSERT_QUERY = '''
         %(data)s
     )
     '''
+GET_PARTICIPANTES_QUERY = 'SELECT cnpj FROM participantes'
 
 # Setup do logger
 logging.basicConfig(
@@ -105,6 +87,14 @@ except mysql.connector.DatabaseError as e:
     logging.critical(f'Erro na conexão do banco: {e}')
     exit()
 logging.info('Conexão estabelecida')
+
+
+def get_participantes():
+    # Busca a lista atual de CNPJs dos participantes
+    with db.cursor() as cursor:
+        cursor.execute(GET_PARTICIPANTES_QUERY)
+        participantes = cursor.fetchall()
+    return participantes
 
 
 def get_tio_headers() -> dict:
@@ -243,7 +233,8 @@ def parse_file(participante: str) -> int:
 
 # Loop principal
 logging.info('Iniciando a execução')
-for cnpj in PARTICIPANTES:
+for participante in get_participantes():
+    cnpj = participante[0]
     logging.info(f'Processando arquivos do participante {cnpj}')
     links = get_links_by_cnpj(cnpj)
     qtd_arquivos = len(links)
