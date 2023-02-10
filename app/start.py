@@ -196,25 +196,28 @@ def parse_file(participante: str) -> int:
             'desc_erro'
             ]
     ) as reader:
-        for chunk in reader:
-            registros = list()
-            for line in chunk.index:
-                registro = {}
-                registro['cnpj'] = str(participante)
-                registro['guid'] = str(chunk['guid'][line])
-                if chunk['codigo_erro'][line] != 0:
-                    erro = chunk['desc_erro'][line]
-                    lista_erro = erro.split(';')
-                    registro['codigo_erro'] = lista_erro[0]
-                    registro['desc_erro'] = lista_erro[1]
-                else:
-                    registro['codigo_erro'] = 0
-                    registro['desc_erro'] = None
-                new_time = datetime.strptime(
-                    chunk['horario'][line], '%Y-%m-%dT%H:%M:%S.%fZ'
-                )
-                registro['data'] = new_time.date()
-                registros.append(registro)
+            for chunk in reader:
+                registros = list()
+                for line in chunk.index:
+                    try:
+                        registro = {}
+                        registro['cnpj'] = str(participante)
+                        registro['guid'] = str(chunk['guid'][line])
+                        if chunk['codigo_erro'][line] != 0:
+                            erro = chunk['desc_erro'][line]
+                            lista_erro = erro.split(';')
+                            registro['codigo_erro'] = lista_erro[0]
+                            registro['desc_erro'] = lista_erro[1]
+                        else:
+                            registro['codigo_erro'] = 0
+                            registro['desc_erro'] = None
+                        new_time = datetime.strptime(
+                            chunk['horario'][line], '%Y-%m-%dT%H:%M:%S.%fZ'
+                        )
+                        registro['data'] = new_time.date()
+                        registros.append(registro)
+                    except pandas.errors.ParserError as e:
+                        logging.warning(f'Registro fora do formato esperado: {e}')
 
             try:
                 with db.cursor() as cursor:
