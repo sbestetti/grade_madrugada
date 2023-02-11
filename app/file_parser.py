@@ -15,10 +15,10 @@ def parse_file(participante: str) -> int:
     logging.info(f'Lendo arquivos do participante {participante}')
     total_de_registros = 0
     with pandas.read_csv(cfg.app_config['tmp_file'], sep=';', chunksize=cfg.db_config['chunk_size'], names=['referencia_externa', 'guid', 'horario', 'codigo_erro', 'desc_erro']) as reader:
-        for chunk in reader:
-            registros = list()
-            for line in chunk.index:
-                try:
+        try:
+            for chunk in reader:
+                registros = list()
+                for line in chunk.index:
                     registro = {}
                     registro['cnpj'] = str(participante)
                     registro['guid'] = str(chunk['guid'][line])
@@ -35,8 +35,8 @@ def parse_file(participante: str) -> int:
                     )
                     registro['data'] = new_time.date()
                     registros.append(registro)
-                except pandas.errors.ParserError as e:
-                    logging.warning(f'Registro fora do formato esperado: {e}')
-            dao.save_records(registros)
-            total_de_registros = total_de_registros + len(registros)
+        except pandas.errors.ParserError as e:
+            logging.warning(f'Registro fora do formato esperado: {e}')
+        dao.save_records(registros)
+        total_de_registros = total_de_registros + len(registros)
     return total_de_registros
