@@ -5,10 +5,8 @@ from datetime import date, datetime
 import requests
 
 # Internos
-from log_manager import get_logger
+from log_manager import logging
 import config as cfg
-
-logging = get_logger()
 
 
 def get_tio_headers() -> dict:
@@ -23,6 +21,7 @@ def get_tio_headers() -> dict:
         data=form_data,
         headers=headers
     )
+    print(f'------------------------------------> {response.json()}')
     token = response.json()['access_token']
     header = {
         'Authorization': f'Bearer {token}'
