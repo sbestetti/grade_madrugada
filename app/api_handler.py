@@ -21,7 +21,6 @@ def get_tio_headers() -> dict:
         data=form_data,
         headers=headers
     )
-    print(f'------------------------------------> {response.json()}')
     token = response.json()['access_token']
     header = {
         'Authorization': f'Bearer {token}'
