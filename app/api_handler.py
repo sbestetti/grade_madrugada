@@ -1,7 +1,11 @@
+# Sistema
 from datetime import date, datetime
-from log_manager import get_logger
+
+# Ferramentas
 import requests
 
+# Internos
+from log_manager import get_logger
 import config as cfg
 
 logging = get_logger()

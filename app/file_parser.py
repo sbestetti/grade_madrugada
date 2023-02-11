@@ -1,6 +1,11 @@
-from log_manager import logging
-import pandas
+# Sistema
 from datetime import datetime
+
+# Ferramentas
+import pandas
+
+# Internos
+from log_manager import logging
 import dao
 import config as cfg
 

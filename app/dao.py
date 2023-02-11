@@ -1,6 +1,8 @@
-from log_manager import logging
+# Ferramentas
 import mysql.connector
 
+# Internos
+from log_manager import logging
 import config as cfg
 
 # Constantes de queries
