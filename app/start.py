@@ -6,6 +6,7 @@ from datetime import datetime
 from log_manager import logging
 import dao
 import api_handler
+import file_parser
 
 # Tratando possível argumento de data de início
 if len(sys.argv) == 1:
@@ -50,7 +51,7 @@ def main():
                 counter += 1
                 continue
             logging.info('Download finalizado. Iniciando processamento')
-            numero_de_registros = dao.parse_file(cnpj)
+            numero_de_registros = file_parser.parse_file(cnpj)
             logging.info(f'{numero_de_registros} registro processados')
             counter += 1
     logging.info('Processamento de arquivos finalizado.')
