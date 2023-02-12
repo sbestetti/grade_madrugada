@@ -1,6 +1,6 @@
 # Sistema
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Internos
 from log_manager import logging
@@ -10,7 +10,9 @@ import file_parser
 
 # Tratando possível argumento de data de início
 if len(sys.argv) == 1:
-    data_de_inicio = datetime.today()
+    # Pegando arquivos do dia anterior para garantir que arquivos
+    # enviados depois que o Script rodou sejam incluidos
+    data_de_inicio = datetime.today() - timedelta(days=1)
 else:
     data_de_inicio = datetime.strptime(sys.argv[1], '%Y-%m-%d')
 
