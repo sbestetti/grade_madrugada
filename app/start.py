@@ -55,6 +55,7 @@ def main():
                 continue
             logging.info('Download finalizado. Iniciando processamento')
             numero_de_registros = file_parser.parse_file(cnpj)
+            dao.add_downloaded_file(link)
             logging.info(f'{numero_de_registros} registro processados')
             counter += 1
     logging.info('Processamento de arquivos finalizado.')

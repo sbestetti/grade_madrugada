@@ -82,5 +82,4 @@ def get_files_by_links(link: list) -> None:
     with open(cfg.app_config['tmp_file'], 'ab') as arquivo_local:
         for chunk in arquivo.iter_content(chunk_size=1024):
             arquivo_local.write(chunk)
-    dao.add_downloaded_file(link)
     return
