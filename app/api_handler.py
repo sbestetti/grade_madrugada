@@ -53,7 +53,7 @@ def get_links_by_cnpj(cnpj: str, data_de_inicio: datetime) -> list:
     data = response.json()
     for arquivo in data['result']['content']:
         _ = {
-            'participante': str(arquivo['fileName'])[11:19],
+            'participante': cnpj,
             'id': arquivo['fileControlId'],
             'nome': arquivo['fileName'],
             'tempo_de_processamento': arquivo['processingTime']
