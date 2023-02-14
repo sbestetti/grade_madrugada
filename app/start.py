@@ -15,6 +15,7 @@ if len(sys.argv) == 1:
     data_de_inicio = datetime.today() - timedelta(days=1)
 else:
     data_de_inicio = datetime.strptime(sys.argv[1], '%Y-%m-%d')
+data_de_inicio = data_de_inicio.date()
 
 
 # Logando erros inesperados
