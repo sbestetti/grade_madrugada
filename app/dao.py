@@ -1,3 +1,6 @@
+# Sistema
+from datetime import date
+
 # Ferramentas
 import mysql.connector
 
@@ -21,6 +24,7 @@ INSERT_QUERY = '''
     )
     '''
 GET_PARTICIPANTES_QUERY = 'SELECT cnpj FROM participantes'
+INSERT_ARQUIVO_QUERY = 'INSERT INTO arquivos (cnpj, nome, data_de_processamento) VALUES (%(cnpj)s, %(nome)s, %(data)s)'
 
 # Setup da conexão com o banco
 logging.info('Conectando ao banco...')
@@ -49,6 +53,21 @@ def save_records(registros: list):
     try:
         with db.cursor() as cursor:
             cursor.executemany(INSERT_QUERY, registros)
+            db.commit()
+    except Exception as e:
+        logging.critical(f'Erro ao inserir registro no banco: {e}')
+        exit()
+
+
+def add_downloaded_file(link: list) -> None:
+    arquivo_atual = {
+        'cnpj': link['participante'],
+        'nome': link['nome'],
+        'data': date.today()
+    }
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(INSERT_ARQUIVO_QUERY, arquivo_atual)
             db.commit()
     except Exception as e:
         logging.critical(f'Erro ao inserir registro no banco: {e}')
