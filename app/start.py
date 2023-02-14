@@ -37,7 +37,7 @@ def main():
     participantes = dao.get_participantes()
     for participante in participantes:
         cnpj = participante[0]
-        logging.info(f'\n\nProcessando arquivos do participante {cnpj}')
+        logging.info(f'\nProcessando arquivos do participante {cnpj}')
         links = api_handler.get_links_by_cnpj(cnpj, data_de_inicio)
         qtd_arquivos = len(links)
         logging.info(f'{qtd_arquivos} arquivos encontrados.')
