@@ -17,15 +17,20 @@ def get_tio_headers() -> dict:
         'Authorization': f'Basic {cfg.http_config["api_secret"]}'
     }
     form_data = {'grant_type': 'client_credentials'}
-    response = requests.post(
-        'https://cad-prd.cerc.inf.br/oauth/token',
-        data=form_data,
-        headers=headers
-    )
-    token = response.json()['access_token']
-    header = {
-        'Authorization': f'Bearer {token}'
-    }
+    try:
+        response = requests.post(
+            'https://cad-prd.cerc.inf.br/oauth/token',
+            data=form_data,
+            headers=headers
+        )
+        response.raise_for_status()
+        token = response.json()['access_token']
+        header = {
+            'Authorization': f'Bearer {token}'
+        }
+    except requests.exceptions.HTTPError as e:
+        logging.critical(f'Erro ao criar token de acesso ao portal: {e}')
+        exit()
     return header
 
 
