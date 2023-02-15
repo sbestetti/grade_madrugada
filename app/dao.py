@@ -74,3 +74,11 @@ def add_downloaded_file(link: list) -> None:
     except Exception as e:
         logging.critical(f'Erro ao inserir registro no banco: {e}')
         exit()
+
+
+def check_if_processed(link):
+    with db.cursor() as cursor:
+        nome_do_arquivo = [link['nome']]
+        cursor.execute('SELECT * FROM arquivos WHERE nome=%s', nome_do_arquivo)
+        result = cursor.fetchone()
+    return result            
