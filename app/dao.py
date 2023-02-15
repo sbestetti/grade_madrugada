@@ -26,19 +26,21 @@ INSERT_QUERY = '''
 GET_PARTICIPANTES_QUERY = 'SELECT cnpj FROM participantes'
 INSERT_ARQUIVO_QUERY = 'INSERT INTO arquivos (cnpj, nome, data_de_processamento) VALUES (%(cnpj)s, %(nome)s, %(data)s)'
 
-# Setup da conexão com o banco
-logging.info('Conectando ao banco...')
-try:
-    db = mysql.connector.connect(
-        host=cfg.db_config['host'],
-        user=cfg.db_config['user'],
-        password=cfg.db_config['password'],
-        database=cfg.db_config['db_name']
-    )
-except mysql.connector.DatabaseError as e:
-    logging.critical(f'Erro na conexão do banco: {e}')
-    exit()
-logging.info('Conexão estabelecida')
+def connect_to_db():
+    # Setup da conexão com o banco
+    logging.info('Conectando ao banco...')
+    global db
+    try:
+        db = mysql.connector.connect(
+            host=cfg.db_config['host'],
+            user=cfg.db_config['user'],
+            password=cfg.db_config['password'],
+            database=cfg.db_config['db_name']
+        )
+    except mysql.connector.DatabaseError as e:
+        logging.critical(f'Erro na conexão do banco: {e}')
+        exit()
+    logging.info('Conexão estabelecida')
 
 
 def get_participantes():

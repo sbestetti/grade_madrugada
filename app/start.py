@@ -33,6 +33,7 @@ sys.excepthook = handle_exception
 
 
 def main():
+    dao.connect_to_db()
     logging.info('Iniciando a execução')
     participantes = dao.get_participantes()
     for participante in participantes:
