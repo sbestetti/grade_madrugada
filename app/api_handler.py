@@ -60,7 +60,7 @@ def get_links_by_cnpj(cnpj: str, data_de_inicio: datetime) -> list:
         _ = {
             'participante': cnpj,
             'id': arquivo['fileControlId'],
-            'nome': arquivo['fileName'],
+            'nome': arquivo['fileName'][:-3],
             'tempo_de_processamento': arquivo['processingTime']
         }
         arquivos_recebidos.append(_)
@@ -68,10 +68,10 @@ def get_links_by_cnpj(cnpj: str, data_de_inicio: datetime) -> list:
     return arquivos_recebidos
 
 
-def get_files_by_links(link: list) -> None:
+def get_files_by_links(link: list, db) -> None:
     # Recebe a lista de arquivos de um participante
     # e salva todos os registros em um arquivo local único
-    processed_file = dao.check_if_processed(link)
+    processed_file = dao.check_if_processed(link, db)
     if processed_file:
         return False
 
@@ -82,13 +82,13 @@ def get_files_by_links(link: list) -> None:
         response.raise_for_status()
         logging.debug(f'Status da resposta: {response.status_code}')
     except requests.exceptions.HTTPError:
-        message = f'Erro {response.status_code} durante o download.'
+        message = f'{link["participante"]}: Erro {response.status_code} durante o download do arquivo {link["nome"]}'
         logging.warning(message)
         raise Exception(message)
     data = response.json()
     url_do_arquivo = data['result']
     arquivo = requests.get(url_do_arquivo, stream=True)
-    with open(cfg.app_config['tmp_file'], 'ab') as arquivo_local:
+    with open(link['nome'], 'ab') as arquivo_local:
         for chunk in arquivo.iter_content(chunk_size=1024):
             arquivo_local.write(chunk)
     return True

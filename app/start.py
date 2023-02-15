@@ -1,6 +1,11 @@
 # Sistema
+import os
 import sys
 from datetime import datetime, timedelta
+import threading
+
+# Ferramentas
+import requests
 
 # Internos
 from log_manager import logging
@@ -32,35 +37,44 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 sys.excepthook = handle_exception
 
 
-def main():
-    dao.connect_to_db()
-    logging.info('Iniciando a execução')
-    participantes = dao.get_participantes()
-    for participante in participantes:
-        cnpj = participante[0]
-        logging.info(f'\nProcessando arquivos do participante {cnpj}')
-        links = api_handler.get_links_by_cnpj(cnpj, data_de_inicio)
-        qtd_arquivos = len(links)
-        logging.info(f'{qtd_arquivos} arquivos encontrados.')
-        counter = 1
-        for link in links:
-            try:
-                logging.info(f'Baixando arquivo {counter} de {qtd_arquivos}.')
-                is_new_file = api_handler.get_files_by_links(link)
-                if is_new_file:
-                    logging.info('Download finalizado. Iniciando processamento')
-                    numero_de_registros = file_parser.parse_file(cnpj)
-                    dao.add_downloaded_file(link)
-                    logging.info(f'{numero_de_registros} registro processados')
-                    counter += 1
-                else:
-                    logging.info(f'Arquivo {link["nome"]} já processado anteriormente. Pulando')
-                    counter += 1
-                    continue
-            except Exception as e:
-                logging.info(f'Erro no download do arquivo {link["name"]}: {e}')
+def main(participante, db):    
+    cnpj = participante[0]    
+    links = api_handler.get_links_by_cnpj(cnpj, data_de_inicio)
+    qtd_arquivos = len(links)
+    logging.info(f'{cnpj}: {qtd_arquivos} arquivos encontrados.')
+    counter = 1
+    for link in links:
+        try:
+            logging.info(f'{cnpj}: baixando arquivo {counter} de {qtd_arquivos}.')
+            is_new_file = api_handler.get_files_by_links(link, db)
+            if is_new_file:
+                logging.info(f'{cnpj}: download finalizado. Iniciando processamento')
+                numero_de_registros = file_parser.parse_file(cnpj, link["nome"], db)
+                dao.add_downloaded_file(link, db)
+                logging.info(f'{cnpj}: {numero_de_registros} registro processados')
+                os.remove(link['nome'])
+                counter += 1
+            else:
+                logging.info(f'{cnpj}: Arquivo {link["nome"]} já processado anteriormente. Pulando')
+                counter += 1
                 continue
-    logging.info('Processamento de arquivos finalizado.')
+        except requests.exceptions.HTTPError:
+            continue
+        except Exception as e:
+            logging.info(f'{cnpj}: {e.with_traceback()}')
+            continue
+    logging.info(f'{cnpj}: Processamento de arquivos finalizado.')
+    return f'{cnpj}: participante finalizado'
 
 
-main()
+logging.info('Iniciando a execução')
+db = dao.connect_to_db()
+participantes = dao.get_participantes(db)
+threads = list()
+for participante in participantes:
+    local_db_connection = dao.connect_to_db()
+    _ = threading.Thread(target=main, args=(participante, local_db_connection, ))
+    threads.append(_)
+    _.start()
+for thread in threads:
+    thread.join()

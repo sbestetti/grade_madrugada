@@ -29,9 +29,8 @@ INSERT_ARQUIVO_QUERY = 'INSERT INTO arquivos (cnpj, nome, data_de_processamento)
 def connect_to_db():
     # Setup da conexão com o banco
     logging.info('Conectando ao banco...')
-    global db
     try:
-        db = mysql.connector.connect(
+        connection = mysql.connector.connect(
             host=cfg.db_config['host'],
             user=cfg.db_config['user'],
             password=cfg.db_config['password'],
@@ -41,9 +40,10 @@ def connect_to_db():
         logging.critical(f'Erro na conexão do banco: {e}')
         exit()
     logging.info('Conexão estabelecida')
+    return connection
 
 
-def get_participantes():
+def get_participantes(db):
     # Busca a lista atual de CNPJs dos participantes
     with db.cursor() as cursor:
         cursor.execute(GET_PARTICIPANTES_QUERY)
@@ -51,17 +51,18 @@ def get_participantes():
     return participantes
 
 
-def save_records(registros: list):
+def save_records(registros: list, db):
+    db.reconnect()
     try:
         with db.cursor() as cursor:
             cursor.executemany(INSERT_QUERY, registros)
             db.commit()
     except Exception as e:
-        logging.critical(f'Erro ao inserir registro no banco: {e}')
-        exit()
+        raise e
 
 
-def add_downloaded_file(link: list) -> None:
+def add_downloaded_file(link: list, db) -> None:
+    db.reconnect()
     arquivo_atual = {
         'cnpj': link['participante'],
         'nome': link['nome'],
@@ -76,7 +77,7 @@ def add_downloaded_file(link: list) -> None:
         exit()
 
 
-def check_if_processed(link):
+def check_if_processed(link, db):
     with db.cursor() as cursor:
         nome_do_arquivo = [link['nome']]
         cursor.execute('SELECT * FROM arquivos WHERE nome=%s', nome_do_arquivo)
