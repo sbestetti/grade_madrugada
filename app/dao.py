@@ -10,16 +10,16 @@ import config as cfg
 
 # Constantes de queries
 INSERT_QUERY = '''
-    INSERT IGNORE INTO grade_madrugada (
-        cnpj,
+    INSERT IGNORE INTO registros (
         guid,
-        codigo_erro,
+        cnpj,
+        codigo_de_erro,
         data
     )
     VALUES (
-        %(cnpj)s,
         %(guid)s,
-        %(codigo_erro)s,
+        %(cnpj)s,
+        %(codigo_de_erro)s,
         %(data)s
     )
     '''
