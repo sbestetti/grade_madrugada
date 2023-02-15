@@ -7,6 +7,7 @@ import requests
 # Internos
 from log_manager import logging
 import config as cfg
+import dao
 
 
 def get_tio_headers() -> dict:
@@ -16,15 +17,20 @@ def get_tio_headers() -> dict:
         'Authorization': f'Basic {cfg.http_config["api_secret"]}'
     }
     form_data = {'grant_type': 'client_credentials'}
-    response = requests.post(
-        'https://cad-prd.cerc.inf.br/oauth/token',
-        data=form_data,
-        headers=headers
-    )
-    token = response.json()['access_token']
-    header = {
-        'Authorization': f'Bearer {token}'
-    }
+    try:
+        response = requests.post(
+            'https://cad-prd.cerc.inf.br/oauth/token',
+            data=form_data,
+            headers=headers
+        )
+        response.raise_for_status()
+        token = response.json()['access_token']
+        header = {
+            'Authorization': f'Bearer {token}'
+        }
+    except requests.exceptions.HTTPError as e:
+        logging.critical(f'Erro ao criar token de acesso ao portal: {e}')
+        exit()
     return header
 
 
@@ -52,7 +58,7 @@ def get_links_by_cnpj(cnpj: str, data_de_inicio: datetime) -> list:
     data = response.json()
     for arquivo in data['result']['content']:
         _ = {
-            'participante': str(arquivo['fileName'])[11:19],
+            'participante': cnpj,
             'id': arquivo['fileControlId'],
             'nome': arquivo['fileName'],
             'tempo_de_processamento': arquivo['processingTime']
@@ -65,6 +71,10 @@ def get_links_by_cnpj(cnpj: str, data_de_inicio: datetime) -> list:
 def get_files_by_links(link: list) -> None:
     # Recebe a lista de arquivos de um participante
     # e salva todos os registros em um arquivo local único
+    processed_file = dao.check_if_processed(link)
+    if processed_file:
+        return False
+
     header = get_tio_headers()
     url_atual = cfg.http_config['ulr_arquivo'].replace('fileControlId', link['id'])
     try:
@@ -81,4 +91,4 @@ def get_files_by_links(link: list) -> None:
     with open(cfg.app_config['tmp_file'], 'ab') as arquivo_local:
         for chunk in arquivo.iter_content(chunk_size=1024):
             arquivo_local.write(chunk)
-    return
+    return True

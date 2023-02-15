@@ -33,6 +33,7 @@ sys.excepthook = handle_exception
 
 
 def main():
+    dao.connect_to_db()
     logging.info('Iniciando a execução')
     participantes = dao.get_participantes()
     for participante in participantes:
@@ -43,20 +44,22 @@ def main():
         logging.info(f'{qtd_arquivos} arquivos encontrados.')
         counter = 1
         for link in links:
-            logging.info(
-                f'Baixando arquivo {counter} de {qtd_arquivos}.')
             try:
-                api_handler.get_files_by_links(link)
-            except Exception:
-                print(
-                    f'Erro no arquivo {counter} de {qtd_arquivos}. Pulando'
-                )
-                counter += 1
+                logging.info(f'Baixando arquivo {counter} de {qtd_arquivos}.')
+                is_new_file = api_handler.get_files_by_links(link)
+                if is_new_file:
+                    logging.info('Download finalizado. Iniciando processamento')
+                    numero_de_registros = file_parser.parse_file(cnpj)
+                    dao.add_downloaded_file(link)
+                    logging.info(f'{numero_de_registros} registro processados')
+                    counter += 1
+                else:
+                    logging.info(f'Arquivo {link["nome"]} já processado anteriormente. Pulando')
+                    counter += 1
+                    continue
+            except Exception as e:
+                logging.info(f'Erro no download do arquivo {link["name"]}: {e}')
                 continue
-            logging.info('Download finalizado. Iniciando processamento')
-            numero_de_registros = file_parser.parse_file(cnpj)
-            logging.info(f'{numero_de_registros} registro processados')
-            counter += 1
     logging.info('Processamento de arquivos finalizado.')
 
 

@@ -1,0 +1,206 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema grade_da_madrugada
+-- -----------------------------------------------------
+DROP SCHEMA IF EXISTS `grade_da_madrugada` ;
+
+-- -----------------------------------------------------
+-- Schema grade_da_madrugada
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `grade_da_madrugada` DEFAULT CHARACTER SET utf8 ;
+USE `grade_da_madrugada` ;
+
+-- -----------------------------------------------------
+-- Table `grade_da_madrugada`.`participantes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `grade_da_madrugada`.`participantes` (
+  `cnpj` VARCHAR(14) NOT NULL,
+  `nome` VARCHAR(1024) NOT NULL,
+  PRIMARY KEY (`cnpj`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `grade_da_madrugada`.`erros`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `grade_da_madrugada`.`erros` (
+  `codigo_de_erro` INT UNSIGNED NOT NULL,
+  `descricao` VARCHAR(1024) NOT NULL,
+  PRIMARY KEY (`codigo_de_erro`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `grade_da_madrugada`.`registros`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `grade_da_madrugada`.`registros` (
+  `guid` VARCHAR(36) NOT NULL,
+  `cnpj` VARCHAR(14) NOT NULL,
+  `codigo_de_erro` INT UNSIGNED NOT NULL,
+  `data` DATE NOT NULL,
+  PRIMARY KEY (`guid`),
+  INDEX `idx_registros_cnpj_data` (`data` ASC, `cnpj` ASC) VISIBLE,
+  INDEX `fk_registros_participantes_idx` (`cnpj` ASC) VISIBLE,
+  INDEX `fk_registros_erros1_idx` (`codigo_de_erro` ASC) VISIBLE,
+  CONSTRAINT `fk_registros_participantes`
+    FOREIGN KEY (`cnpj`)
+    REFERENCES `grade_da_madrugada`.`participantes` (`cnpj`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_registros_erros1`
+    FOREIGN KEY (`codigo_de_erro`)
+    REFERENCES `grade_da_madrugada`.`erros` (`codigo_de_erro`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `grade_da_madrugada`.`arquivos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `grade_da_madrugada`.`arquivos` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `cnpj` VARCHAR(14) NOT NULL,
+  `nome` VARCHAR(1024) NOT NULL,
+  `data_de_processamento` DATE NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_arquivos_participantes1_idx` (`cnpj` ASC) VISIBLE,
+  CONSTRAINT `fk_arquivos_participantes1`
+    FOREIGN KEY (`cnpj`)
+    REFERENCES `grade_da_madrugada`.`participantes` (`cnpj`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `grade_da_madrugada`.`sumario`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `grade_da_madrugada`.`sumario` (
+  `data` DATE NOT NULL,
+  `cnpj` VARCHAR(14) NOT NULL,
+  `participante` VARCHAR(1024) NOT NULL,
+  `codigo_de_erro` INT UNSIGNED NOT NULL,
+  `total` BIGINT(20) UNSIGNED NOT NULL,
+  INDEX `idx_summary_data_participante` (`data` ASC, `cnpj` ASC) INVISIBLE)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+-- -----------------------------------------------------
+-- Data for table `grade_da_madrugada`.`participantes`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `grade_da_madrugada`;
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('01181521000155', 'SICREDI');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('01425787003898', 'REDE POP');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('02038232000164', 'BANCOOB');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('04962772000165', 'FIRST DATA');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('06167186000154', 'PAYGO');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('06308851000182', 'MOOZ');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('08561701000101', 'PAGSEGURO');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('08561701014323', 'PAGSEGURO FILIAL');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('10573521000191', 'MERCADO PAGO');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('10878448000166', 'PAYPAL');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('14380200000121', 'IFOOD.COM');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('16668076000120', 'SUMUP IC');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('17887874000105', 'GLOBAL/ENTREPAY');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('17948578000177', 'MAGALU');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('18189547000142', 'CLOUDWALK');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('18577728000146', 'ESFERA 5');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('20520298000178', 'ADIQ');
+INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('92934215000106', 'BANRISUL');
+
+COMMIT;
+
+
+-- -----------------------------------------------------
+-- Data for table `grade_da_madrugada`.`erros`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `grade_da_madrugada`;
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (0, 'SUCESSO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102001, 'TIPO DE OPERACAO OBRIGATORIO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102002, 'TIPO DE OPERACAO INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102003, 'REFERENCIA EXTERNA OBRIGATORIA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102004, 'REFERENCIA EXTERNA INVALIDA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102005, 'INSTITUICAO CREDENCIADORA OU SUBCREDENCIADORA PARTICIPANTE OBRIGATORIA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102006, 'CNPJ DA INSTITUICAO CREDENCIADORA OU SUBCREDENCIADORA PARTICIPANTE INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102007, 'CNPJ DA INSTITUICAO CREDENCIADORA DO ARRANJO INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102008, 'USUARIO FINAL RECEBEDOR OBRIGATORIO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102009, 'CPF OU CNPJ DO USUARIO FINAL RECEBEDOR INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102010, 'USUARIO FINAL RECEBEDOR NAO CADASTRADO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102011, 'ARRANJO DE PAGAMENTO OBRIGATORIO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102012, 'ARRANJO DE PAGAMENTO INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102013, 'DATA DE LIQUIDACAO OBRIGATORIA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102014, 'DATA DE LIQUIDACAO INVALIDA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102015, 'CPF OU CNPJ DO TITULAR INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102016, 'VALOR BRUTO TOTAL INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102017, 'VALOR CONSTITUIDO TOTAL OBRIGATORIO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102018, 'VALOR CONSTITUIDO TOTAL INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102019, 'VALOR CONSTITUIDO PRE CONTRATADO OBRIGATORIO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102020, 'VALOR CONSTITUIDO PRE CONTRATADO INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102021, 'VALOR CONSTITUIDO PRE-CONTRATADO NAO PODE SER SUPERIOR AO VALOR CONSTITUIDO TOTAL');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102022, 'VALOR BLOQUEADO INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102023, 'VALOR TRANSACAO RISCO USUARIO FINAL RECEBEDOR TOTAL INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102024, 'VALOR TRANSACAO RISCO EMISSOR TOTAL INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102025, 'NUMERO DOCUMENTO TITULAR DOMICILIO OBRIGATORIO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102026, 'NUMERO DOCUMENTO TITULAR DOMICILIO INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102027, 'TIPO DE CONTA OBRIGATORIO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102028, 'TIPO DE CONTA INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102029, 'COMPE INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102030, 'ISPB OBRIGATORIO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102031, 'ISPB INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102032, 'AGENCIA OBRIGATORIA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102033, 'AGENCIA INVALIDA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102034, 'NUMERO DA CONTA OBRIGATORIA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102035, 'NUMERO DA CONTA INVALIDA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102036, 'VALOR A PAGAR INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102037, 'CNPJ DO BENEFICIARIO INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102038, 'DATA LIQUIDACAO EFETIVA OBRIGATORIA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102039, 'DATA LIQUIDACAO EFETIVA INVALIDA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102040, 'VALOR LIQUIDACAO EFETIVA OBRIGATORIO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102041, 'VALOR LIQUIDACAO EFETIVA INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102042, 'MOTIVO DE NAO PAGAMENTO INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102043, 'USUARIO FINAL RECEBEDOR NAO POSSUI VINCULO COM A INSTITUICAO CREDENCIADORA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102044, 'FALTA DE CONEXAO OPERACIONAL ATIVA DA INSTITUICAO CREDENCIADORA COM ENTIDADES REGISTRADORAS');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102045, 'DOMICILIO DE PAGAMENTO OBRIGATORIO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102046, 'IDENTIFICADOR DO EFEITO DE CONTRATO INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102801, 'OPERACAO NAO PERMITIDA - ACESSO NEGADO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102802, 'OPERACAO INVALIDA PARA O REGISTRO ATUAL');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102803, 'UNIDADE DE RECEBIVEL JA REGISTRADA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102804, 'ERRO DEVIDO A ATUALIZACAO DE CAMPOS NAO PERMITIDOS');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102805, 'ERRO GENERICO DE VALIDACAO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102806, 'INSTITUICAO CREDENCIADORA REGISTRADA EM INSTITUICAO DIFERENTE DA INFORMADA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102807, 'UNIDADE DE RECEBIVEL REGISTRADA EM OUTRA REGISTRADORA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102808, 'REJEICAO DE UR POR RESTRICAO DE GRADE HORARIA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102809, 'REJEICAO DE ENVIO POR FALHA DE UR');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102810, 'UNIDADE DE RECEBIVEL DE MESMA CHAVE EM PROCESSAMENTO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102811, 'OPERACAO DO TIPO BAIXA SEM LIQUIDACAO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102901, 'LAYOUT INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102902, 'ENVIADO FORA DA GRADE HORARIA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102903, 'NOME DO ARQUIVO JA ENVIADO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102904, 'NOME DO ARQUIVO INVALIDO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102905, 'VALOR A PAGAR OBRIGATORIO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102906, 'VALOR BLOQUEADO NAO PODE SER SUPERIOR AO VALOR CONSTITUIDO TOTAL');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102907, 'VALOR BRUTO TOTAL NAO PODE SER INFERIOR AO VALOR CONSTITUIDO TOTAL');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102908, 'DATA DE LIQUIDACAO EM UR DE DEBITO NAO PODE SER SUPERIOR A 45 DIAS');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102909, 'DATA DE LIQUIDACAO EM UR DE CREDITO NAO PODE SER SUPERIOR A 5 ANOS');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102910, 'VALOR LIQUIDACAO EFETIVA DEVE SER MAIOR QUE ZERO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102911, 'DATA DE LIQUIDACAO EFETIVA NAO PODE SER SUPERIOR A 15 DIAS');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102912, 'VALOR LIQUIDACAO EFETIVA MAIOR QUE ZERO POREM SEM POS-CONTRATADA REGISTRADA');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102913, 'TITULAR DIFERENTE DO USUARIO FINAL RECEBEDOR POREM SEM CONTRATO DE TROCA DE TITULARIDADE');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102914, 'BENEFICIARIO OBRIGATORIO');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102915, 'IDENTIFICADOR DO EFEITO DE CONTRATO OBRIGATORIO QUANDO O BENEFICIARIO FOR DIFERENTE DO USUARIO FINAL RECEBEDOR');
+INSERT INTO `grade_da_madrugada`.`erros` (`codigo_de_erro`, `descricao`) VALUES (102999, 'ERRO INESPERADO');
+
+COMMIT;
+
