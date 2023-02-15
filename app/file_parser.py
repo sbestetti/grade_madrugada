@@ -13,7 +13,7 @@ import config as cfg
 def parse_file(participante: str) -> int:
     # Move os dados do arquivo recebido para o banco
     total_de_registros = 0
-    with pandas.read_csv(cfg.app_config['tmp_file'], sep=';', chunksize=cfg.db_config['chunk_size'], on_bad_lines='warn', names=['referencia_externa', 'guid', 'horario', 'codigo_erro', 'desc_erro']) as reader:
+    with pandas.read_csv(cfg.app_config['tmp_file'], sep=';', chunksize=cfg.db_config['chunk_size'], on_bad_lines='skip', names=['referencia_externa', 'guid', 'horario', 'codigo_erro', 'desc_erro']) as reader:
         for chunk in reader:
             registros = list()
             for line in chunk.index:
