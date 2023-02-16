@@ -3,6 +3,7 @@ import os
 import sys
 from datetime import datetime, timedelta
 import threading
+import traceback
 
 # Ferramentas
 import requests
@@ -61,7 +62,7 @@ def main(participante, db):
         except requests.exceptions.HTTPError:
             continue
         except Exception as e:
-            logging.info(f'{cnpj}: {e.with_traceback()}')
+            logging.info(f'{cnpj}: {e}\nTraceback: {traceback.print_stack()}')
             continue
     logging.info(f'{cnpj}: Processamento de arquivos finalizado.')
     return f'{cnpj}: participante finalizado'
