@@ -1,0 +1,38 @@
+-- Stored procedure que atualiza a tabela de sumário com os dados novos
+DELIMITER //
+
+CREATE PROCEDURE atualizar_sumario()
+BEGIN
+  set session internal_tmp_mem_storage_engine=Memory;
+  CREATE TABLE tmp_sumario (
+    data DATE,
+    nome VARCHAR(1024),
+    codigo_de_erro INT UNSIGNED,
+    descricao VARCHAR(1024),
+    total INT UNSIGNED
+  );
+
+  INSERT INTO tmp_sumario (data, nome, codigo_de_erro, descricao, total)
+  SELECT
+    r.data,
+    p.nome,
+    r.codigo_de_erro,
+    e.descricao,
+    COUNT(*)
+  FROM
+    registros AS r
+    INNER JOIN participantes AS p ON r.cnpj = p.cnpj
+    INNER JOIN erros AS e ON r.codigo_de_erro = e.codigo_de_erro
+  WHERE
+    r.data >= DATE(NOW()) - INTERVAL 6 DAY    
+  GROUP BY
+    r.data,
+    p.nome,
+    r.codigo_de_erro;
+
+  DROP TABLE IF EXISTS sumario;
+
+  RENAME TABLE tmp_sumario TO sumario;
+END //
+
+DELIMITER ;
