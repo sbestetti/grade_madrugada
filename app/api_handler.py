@@ -71,9 +71,10 @@ def get_links_by_cnpj(cnpj: str, data_de_inicio: datetime) -> list:
 def get_files_by_links(link: list, db) -> None:
     # Recebe a lista de arquivos de um participante
     # e salva todos os registros em um arquivo local único
-    processed_file = dao.check_if_processed(link, db)
-    if processed_file:
-        return False
+    
+    # processed_file = dao.check_if_processed(link, db)
+    # if processed_file:
+    #     return False
 
     header = get_tio_headers()
     url_atual = cfg.http_config['ulr_arquivo'].replace('fileControlId', link['id'])
