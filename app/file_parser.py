@@ -34,9 +34,9 @@ def parse_file(participante: str, nome_do_arquivo: str, db) -> int:
                 )
                 registro['data'] = new_time.date()
                 registros.append(registro)
-        try:
-            dao.save_records(registros, db)
-        except Exception as e:
-            raise e
+            try:
+                dao.save_records(registros, db)
+            except Exception as e:
+                raise e
         total_de_registros = total_de_registros + len(registros)
     return total_de_registros
