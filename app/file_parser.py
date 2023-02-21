@@ -1,5 +1,6 @@
 # Sistema
 from datetime import datetime
+import gzip
 
 # Ferramentas
 import pandas
@@ -10,10 +11,10 @@ import dao
 import config as cfg
 
 
-def parse_file(participante: str) -> int:
+def parse_file(participante: str, nome_do_arquivo: str, db) -> int:
     # Move os dados do arquivo recebido para o banco
-    total_de_registros = 0
-    with pandas.read_csv(cfg.app_config['tmp_file'], sep=';', chunksize=cfg.db_config['chunk_size'], on_bad_lines='skip', names=['referencia_externa', 'guid', 'horario', 'codigo_de_erro', 'desc_erro']) as reader:
+    total_de_registros = 0    
+    with pandas.read_csv(nome_do_arquivo, sep=';', chunksize=cfg.db_config['chunk_size'], on_bad_lines='skip', names=['referencia_externa', 'guid', 'horario', 'codigo_de_erro', 'desc_erro']) as reader:
         for chunk in reader:
             registros = list()
             for line in chunk.index:
@@ -33,6 +34,9 @@ def parse_file(participante: str) -> int:
                 )
                 registro['data'] = new_time.date()
                 registros.append(registro)
-            dao.save_records(registros)
+            try:
+                dao.save_records(registros, db)
+            except Exception as e:
+                raise e
         total_de_registros = total_de_registros + len(registros)
     return total_de_registros
