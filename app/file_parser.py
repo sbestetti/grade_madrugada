@@ -11,8 +11,8 @@ import dao
 import config as cfg
 
 
-def parse_file(participante: str, nome_do_arquivo: str, db) -> int:
-    # Move os dados do arquivo recebido para o banco
+def parse_file(participante: str, nome_do_arquivo: str) -> int:
+    # Move os dados do arquivo recebido para o banco    
     total_de_registros = 0    
     with pandas.read_csv(nome_do_arquivo, sep=';', chunksize=cfg.db_config['chunk_size'], on_bad_lines='skip', names=['referencia_externa', 'guid', 'horario', 'codigo_de_erro', 'desc_erro']) as reader:
         for chunk in reader:
@@ -35,7 +35,7 @@ def parse_file(participante: str, nome_do_arquivo: str, db) -> int:
                 registro['data'] = new_time.date()
                 registros.append(registro)
             try:
-                dao.save_records(registros, db)
+                dao.save_records(registros)
             except Exception as e:
                 raise e
         total_de_registros = total_de_registros + len(registros)

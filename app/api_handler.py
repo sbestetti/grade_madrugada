@@ -68,14 +68,14 @@ def get_links_by_cnpj(cnpj: str, data_de_inicio: datetime) -> list:
     return arquivos_recebidos
 
 
-def get_files_by_links(link: list, db) -> None:
+def get_files_by_links(link: list) -> None:
     # Recebe a lista de arquivos de um participante
     # e salva todos os registros em um arquivo local único
-    
-    processed_file = dao.check_if_processed(link, db)
+
+    processed_file = dao.check_if_processed(link)
     if processed_file:
         return False
-
+    
     header = get_tio_headers()
     url_atual = cfg.http_config['ulr_arquivo'].replace('fileControlId', link['id'])
     try:
@@ -92,4 +92,4 @@ def get_files_by_links(link: list, db) -> None:
     with open(link['nome'], 'ab') as arquivo_local:
         for chunk in arquivo.iter_content(chunk_size=1024):
             arquivo_local.write(chunk)
-    return True
+    return link['nome']
