@@ -77,19 +77,13 @@ for participante in participantes:
     link_jobs.put(participante[0])
 link_jobs.put(None)
 
-links_thread = threading.Thread(target=worker_get_link_by_cnpj, daemon=True)
-links_thread.start()
-links_thread.join()
-
 working_threads = list()
-
 for i in range(4):
+    working_threads.append(threading.Thread(target=worker_get_link_by_cnpj, daemon=True))
     working_threads.append(threading.Thread(target=worker_get_file_by_link, daemon=True))
     working_threads.append(threading.Thread(target=worker_save_file_to_db, daemon=True))
-
 for i in working_threads:
     i.start()
-
 for i in working_threads:
     i.join()
 
