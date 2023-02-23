@@ -40,9 +40,9 @@ def parse_file(participante: str, nome_do_arquivo: str) -> int:
                 registros.append(registro)
             try:
                 dao.save_records(registros)
-                dao.add_downloaded_file(nome_do_arquivo, participante)
             except Exception as e:
                 raise e        
             total_de_registros = total_de_registros + len(registros)
             chunks_lidos += 1
+        dao.add_downloaded_file(nome_do_arquivo, participante)
     return total_de_registros
