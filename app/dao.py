@@ -78,8 +78,7 @@ def add_downloaded_file(nome_do_arquivo, participante) -> None:
         cursor.close()
         db.close()
     except Exception as e:
-        logging.critical(f'Erro ao inserir registro no banco: {e}')
-        exit()
+        logging.critical(f'Erro ao inserir registro no banco: {e}')        
 
 
 def check_if_processed(link):
