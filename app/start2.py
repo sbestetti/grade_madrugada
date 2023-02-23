@@ -72,17 +72,17 @@ def worker_save_file_to_db():
         process_jobs.task_done()
 
 
-for i in range(4):
-    threading.Thread(target=worker_get_link_by_cnpj, daemon=True).start()
-    threading.Thread(target=worker_get_file_by_link, daemon=True).start()
-threading.Thread(target=worker_save_file_to_db, daemon=True).start()
-
 participantes = dao.get_participantes()
 for participante in participantes:
     link_jobs.put(participante[0])
 link_jobs.put(None)
 
+threading.Thread(target=worker_get_link_by_cnpj, daemon=True).start()
 link_jobs.join()
+
+for i in range(4):
+    threading.Thread(target=worker_get_file_by_link, daemon=True).start()
+    threading.Thread(target=worker_save_file_to_db, daemon=True).start()
 download_jobs.join()
 process_jobs.join()
 
