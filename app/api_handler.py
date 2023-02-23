@@ -68,7 +68,7 @@ def get_links_by_cnpj(cnpj: str, data_de_inicio: datetime) -> list:
     return arquivos_recebidos
 
 
-def get_files_by_links(link: list) -> None:
+def get_files_by_links(link) -> None:
     # Recebe a lista de arquivos de um participante
     # e salva todos os registros em um arquivo local único
 
@@ -81,12 +81,13 @@ def get_files_by_links(link: list) -> None:
     try:
         response = requests.get(url_atual, headers=header)
         response.raise_for_status()
-        logging.debug(f'Status da resposta: {response.status_code}')
+        data = response.json()
     except requests.exceptions.HTTPError:
-        message = f'{link["participante"]}: Erro {response.status_code} durante o download do arquivo {link["nome"]}'
-        logging.warning(message)
-        raise Exception(message)
-    data = response.json()
+        print(f'Erro {response.status_code} durante o download do arquivo {link["nome"]}')
+        return None
+    except requests.exceptions.JSONDecodeError as e:
+        print(f'Erro no arquivo {link["nome"]}: {e}')
+        return None
     url_do_arquivo = data['result']
     arquivo = requests.get(url_do_arquivo, stream=True)
     with open(link['nome'], 'ab') as arquivo_local:
