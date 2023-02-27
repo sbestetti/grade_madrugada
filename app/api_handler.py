@@ -1,5 +1,7 @@
 # Sistema
 from datetime import date, datetime
+import os
+import signal
 
 # Ferramentas
 import requests
@@ -30,7 +32,7 @@ def get_tio_headers() -> dict:
         }
     except requests.exceptions.HTTPError as e:
         logging.critical(f'Erro ao criar token de acesso ao portal: {e}')
-        exit()
+        os.kill(os.getpid(), signal.SIGINT)
     return header
 
 
