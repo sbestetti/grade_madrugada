@@ -1,5 +1,7 @@
 # Sistema
 from datetime import date, datetime
+import os
+import signal
 
 # Ferramentas
 import requests
@@ -30,7 +32,7 @@ def get_tio_headers() -> dict:
         }
     except requests.exceptions.HTTPError as e:
         logging.critical(f'Erro ao criar token de acesso ao portal: {e}')
-        exit()
+        os.kill(os.getpid(), signal.SIGINT)
     return header
 
 
@@ -68,28 +70,29 @@ def get_links_by_cnpj(cnpj: str, data_de_inicio: datetime) -> list:
     return arquivos_recebidos
 
 
-def get_files_by_links(link: list, db) -> None:
+def get_files_by_links(link) -> None:
     # Recebe a lista de arquivos de um participante
     # e salva todos os registros em um arquivo local único
-    
-    processed_file = dao.check_if_processed(link, db)
+
+    processed_file = dao.check_if_processed(link)
     if processed_file:
         return False
-
+    
     header = get_tio_headers()
     url_atual = cfg.http_config['ulr_arquivo'].replace('fileControlId', link['id'])
     try:
         response = requests.get(url_atual, headers=header)
         response.raise_for_status()
-        logging.debug(f'Status da resposta: {response.status_code}')
+        data = response.json()
     except requests.exceptions.HTTPError:
-        message = f'{link["participante"]}: Erro {response.status_code} durante o download do arquivo {link["nome"]}'
-        logging.warning(message)
-        raise Exception(message)
-    data = response.json()
+        print(f'Erro {response.status_code} durante o download do arquivo {link["nome"]}')
+        return None
+    except requests.exceptions.JSONDecodeError as e:
+        print(f'Erro no arquivo {link["nome"]}: {e}')
+        return None
     url_do_arquivo = data['result']
     arquivo = requests.get(url_do_arquivo, stream=True)
     with open(link['nome'], 'ab') as arquivo_local:
         for chunk in arquivo.iter_content(chunk_size=1024):
             arquivo_local.write(chunk)
-    return True
+    return link['nome']

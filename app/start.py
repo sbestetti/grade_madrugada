@@ -1,18 +1,14 @@
-# Sistema
+# Imports do sistema
 import os
 import sys
-from datetime import datetime, timedelta
 import threading
-import traceback
+from datetime import datetime, timedelta
+from queue import Queue
 
-# Ferramentas
-import requests
-
-# Internos
-from log_manager import logging
-import dao
-import api_handler
+# Imports do aplicativo
 import file_parser
+import api_handler
+import dao
 
 # Tratando possível argumento de data de início
 if len(sys.argv) == 1:
@@ -23,59 +19,75 @@ else:
     data_de_inicio = datetime.strptime(sys.argv[1], '%Y-%m-%d')
 data_de_inicio = data_de_inicio.date()
 
-
-# Logando erros inesperados
-def handle_exception(exc_type, exc_value, exc_traceback):
-    if issubclass(exc_type, KeyboardInterrupt):
-        sys.__excepthook__(exc_type, exc_value, exc_traceback)
-        return
-    logging.error(
-        "Uncaught exception",
-        exc_info=(exc_type, exc_value, exc_traceback)
-    )
+link_jobs = Queue()
+download_jobs = Queue()
+process_jobs = Queue(4)
 
 
-sys.excepthook = handle_exception
+def print_status():
+    print(f'{datetime.now()}: Participantes na fila: {link_jobs.qsize()} / Downloads na fila: {download_jobs.qsize()} / Arquivos na fila: {process_jobs.qsize()}')
 
-
-def main(participante, db):    
-    cnpj = participante[0]    
-    links = api_handler.get_links_by_cnpj(cnpj, data_de_inicio)
-    qtd_arquivos = len(links)
-    logging.info(f'{cnpj}: {qtd_arquivos} arquivos encontrados.')
-    counter = 1
-    for link in links:
-        try:
-            logging.info(f'{cnpj}: baixando arquivo {counter} de {qtd_arquivos}.')
-            is_new_file = api_handler.get_files_by_links(link, db)
-            if is_new_file:
-                logging.info(f'{cnpj}: download finalizado. Iniciando processamento')
-                numero_de_registros = file_parser.parse_file(cnpj, link["nome"], db)
-                dao.add_downloaded_file(link, db)
-                logging.info(f'{cnpj}: {numero_de_registros} registro processados')
-                os.remove(link['nome'])
-                counter += 1
-            else:
-                logging.info(f'{cnpj}: Arquivo {link["nome"]} já processado anteriormente. Pulando')
-                counter += 1
+def worker_get_link_by_cnpj():
+    while True:
+        cnpj = link_jobs.get()
+        if cnpj is None:
+            download_jobs.put(None)
+            link_jobs.task_done()
+            return
+        response = api_handler.get_links_by_cnpj(cnpj, data_de_inicio)
+        for _ in response:
+            if dao.check_if_processed(_):
                 continue
-        except requests.exceptions.HTTPError:
-            continue
-        except Exception as e:
-            logging.info(f'{cnpj}: {e}\nTraceback: {traceback.print_stack()}')
-            continue
-    logging.info(f'{cnpj}: Processamento de arquivos finalizado.')
-    return f'{cnpj}: participante finalizado'
+            else:
+                download_jobs.put(_)
+        print_status()
+        link_jobs.task_done()        
 
 
-logging.info('Iniciando a execução')
-db = dao.connect_to_db()
-participantes = dao.get_participantes(db)
-threads = list()
+def worker_get_file_by_link():
+    while True:
+        link = download_jobs.get()
+        if link is None:
+            process_jobs.put(None)
+            download_jobs.task_done()
+            return
+        file_name = api_handler.get_files_by_links(link)
+        if file_name:
+            process_jobs.put([link['participante'], file_name])
+        else:
+            continue
+        print_status()
+        download_jobs.task_done()
+
+
+def worker_save_file_to_db():
+    while True:
+        current_task = process_jobs.get()
+        if current_task is None:
+            process_jobs.task_done()
+            return
+        file_parser.parse_file(current_task[0], current_task[1])
+        os.remove(current_task[1])        
+        print_status()
+        process_jobs.task_done()
+
+print(f'{datetime.now()}: Conectando ao banco')
+participantes = dao.get_participantes()
 for participante in participantes:
-    local_db_connection = dao.connect_to_db()
-    _ = threading.Thread(target=main, args=(participante, local_db_connection, ))
-    threads.append(_)
-    _.start()
-for thread in threads:
-    thread.join()
+    link_jobs.put(participante[0])
+link_jobs.put(None)
+link_fetch_thread = threading.Thread(target=worker_get_link_by_cnpj, daemon=True)
+link_fetch_thread.start()
+link_fetch_thread.join()
+
+
+working_threads = list()
+for i in range(1):
+    working_threads.append(threading.Thread(target=worker_get_file_by_link, daemon=True))
+    working_threads.append(threading.Thread(target=worker_save_file_to_db, daemon=True))
+for i in working_threads:
+    i.start()
+for i in working_threads:
+    i.join()
+
+print('\nProcessamento finalizado')

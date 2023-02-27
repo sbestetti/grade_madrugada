@@ -1,6 +1,6 @@
 # Sistema
 from datetime import datetime
-import gzip
+import math
 
 # Ferramentas
 import pandas
@@ -11,12 +11,16 @@ import dao
 import config as cfg
 
 
-def parse_file(participante: str, nome_do_arquivo: str, db) -> int:
-    # Move os dados do arquivo recebido para o banco
-    total_de_registros = 0    
+def parse_file(participante: str, nome_do_arquivo: str) -> int:
+    # Move os dados do arquivo recebido para o banco    
+    total_de_registros = 0
+    number_of_rows = sum(1 for row in open(nome_do_arquivo, 'r'))
+    number_of_chunks = math.ceil(number_of_rows/cfg.db_config['chunk_size'])
     with pandas.read_csv(nome_do_arquivo, sep=';', chunksize=cfg.db_config['chunk_size'], on_bad_lines='skip', names=['referencia_externa', 'guid', 'horario', 'codigo_de_erro', 'desc_erro']) as reader:
-        for chunk in reader:
+        chunks_lidos = 1
+        for chunk in reader:            
             registros = list()
+            print(f"{datetime.now()}: Arquivo {nome_do_arquivo} - Lendo chunk {chunks_lidos} de {number_of_chunks}")
             for line in chunk.index:
                 registro = {}
                 registro['cnpj'] = str(participante)
@@ -35,8 +39,10 @@ def parse_file(participante: str, nome_do_arquivo: str, db) -> int:
                 registro['data'] = new_time.date()
                 registros.append(registro)
             try:
-                dao.save_records(registros, db)
+                dao.save_records(registros)
             except Exception as e:
-                raise e
-        total_de_registros = total_de_registros + len(registros)
+                raise e        
+            total_de_registros = total_de_registros + len(registros)
+            chunks_lidos += 1
+        dao.add_downloaded_file(nome_do_arquivo, participante)
     return total_de_registros
