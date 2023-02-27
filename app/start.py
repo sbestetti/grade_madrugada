@@ -9,6 +9,7 @@ from queue import Queue
 import file_parser
 import api_handler
 import dao
+import config
 
 # Tratando possível argumento de data de início
 if len(sys.argv) == 1:
@@ -82,7 +83,7 @@ link_fetch_thread.join()
 
 
 working_threads = list()
-for i in range(1):
+for i in range(config.app_config['numero_de_threads']):
     working_threads.append(threading.Thread(target=worker_get_file_by_link, daemon=True))
     working_threads.append(threading.Thread(target=worker_save_file_to_db, daemon=True))
 for i in working_threads:
