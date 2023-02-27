@@ -71,7 +71,7 @@ def worker_save_file_to_db():
         print_status()
         process_jobs.task_done()
 
-
+print(f'{datetime.now()}: Conectando ao banco')
 participantes = dao.get_participantes()
 for participante in participantes:
     link_jobs.put(participante[0])
