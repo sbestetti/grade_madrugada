@@ -23,5 +23,6 @@ log_config = {
 }
 
 app_config = {
-    'tmp_file': './tmp_file'
+    'tmp_file': './tmp_file',
+    'numero_de_threads': 4
 }
