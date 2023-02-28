@@ -1,7 +1,7 @@
 -- Stored procedure que atualiza a tabela de sumário com os dados novos
 DELIMITER //
 
-CREATE PROCEDURE atualizar_sumario()
+CREATE PROCEDURE atualizar_report()
 BEGIN
   set session internal_tmp_mem_storage_engine=Memory;
   CREATE TABLE tmp_sumario (
@@ -11,7 +11,6 @@ BEGIN
     descricao VARCHAR(1024),
     total INT UNSIGNED
   );
-
   INSERT INTO tmp_sumario (data, nome, codigo_de_erro, descricao, total)
   SELECT
     r.data,
@@ -29,9 +28,7 @@ BEGIN
     r.data,
     p.nome,
     r.codigo_de_erro;
-
   DROP TABLE IF EXISTS sumario;
-
   RENAME TABLE tmp_sumario TO sumario;
 END //
 
