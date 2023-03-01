@@ -33,8 +33,7 @@ def worker_get_link_by_cnpj():
         cnpj = link_jobs.get()
         if cnpj is None:
             download_jobs.put(None)
-            link_jobs.task_done()
-            return
+            break
         response = api_handler.get_links_by_cnpj(cnpj, data_de_inicio)
         for _ in response:
             if dao.check_if_processed(_):
@@ -50,8 +49,7 @@ def worker_get_file_by_link():
         link = download_jobs.get()
         if link is None:
             process_jobs.put(None)
-            download_jobs.task_done()
-            return
+            break
         file_name = api_handler.get_files_by_links(link)
         if file_name:
             process_jobs.put([link['participante'], file_name])
@@ -66,7 +64,7 @@ def worker_save_file_to_db():
         current_task = process_jobs.get()
         if current_task is None:
             process_jobs.task_done()
-            return
+            break
         file_parser.parse_file(current_task[0], current_task[1])
         os.remove(current_task[1])        
         print_status()
