@@ -91,6 +91,15 @@ CREATE TABLE IF NOT EXISTS `grade_da_madrugada`.`sumario` (
 ENGINE = InnoDB;
 
 
+-- -----------------------------------------------------
+-- Table `grade_da_madrugada`.`ultima_atualizacao`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `grade_da_madrugada`.`ultima_atualizacao` (
+  `tabela` VARCHAR(64) NOT NULL,
+  `horario` TIMESTAMP NOT NULL
+ENGINE = InnoDB;
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
@@ -100,6 +109,8 @@ SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `grade_da_madrugada`;
+INSERT INTO `grade_da_madrugada`.`ultima_atualizacao` (`tabela`, `horario`) VALUES ('historico', NOW());
+INSERT INTO `grade_da_madrugada`.`ultima_atualizacao` (`tabela`, `horario`) VALUES ('sumario', NOW());
 INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('01181521000155', 'SICREDI');
 INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('01425787003898', 'REDE POP');
 INSERT INTO `grade_da_madrugada`.`participantes` (`cnpj`, `nome`) VALUES ('02038232000164', 'BANCOOB');

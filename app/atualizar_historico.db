@@ -1,0 +1,30 @@
+-- Stored procedure que atualiza a tabela de historico com dados novos
+DELIMITER // 
+CREATE PROCEDURE atualizar_historico() BEGIN 
+    set 
+        session internal_tmp_mem_storage_engine = Memory;
+    DELETE FROM 
+        historico 
+    WHERE 
+        data >= DATE(NOW()) - INTERVAL 1 DAY;
+    INSERT INTO historico 
+        SELECT 
+            registros.data, 
+            participantes.nome, 
+            COUNT(*) AS total 
+        FROM 
+            registros 
+        JOIN participantes ON registros.cnpj = participantes.cnpj 
+        WHERE 
+            data >= DATE(NOW()) - INTERVAL 1 DAY 
+        GROUP BY 
+            registros.data, 
+            participantes.nome;
+    UPDATE 
+        ultima_atualizacao 
+    SET 
+        horario = NOW() 
+    WHERE 
+        tabela = 'historico'
+END // 
+DELIMITER;
