@@ -39,7 +39,8 @@ def worker_get_link_by_cnpj(counter):
         counter += 1
         cnpj = link_jobs.get()
         if cnpj is None:
-            download_jobs.put(None)
+            for i in range(config.app_config['numero_de_threads']):
+                download_jobs.put(None)
             print(f'Finalizando get_link_by_cnpj. Execuções: {counter}')
             break
         response = api_handler.get_links_by_cnpj(cnpj, data_de_inicio)
@@ -58,7 +59,6 @@ def worker_get_file_by_link():
         if link is None:
             process_jobs.put(None)
             print('Finalizando get_file_by_link')
-            download_jobs.put(None)
             break
         try:
             file_name = api_handler.get_files_by_links(link)
@@ -78,7 +78,6 @@ def worker_save_file_to_db():
         if current_task is None:
             process_jobs.task_done()
             print('Finalizando save_file_to_db')
-            process_jobs.put(None)
             break
         file_parser.parse_file(current_task[0], current_task[1])
         os.remove(current_task[1])        
