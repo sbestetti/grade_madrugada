@@ -32,13 +32,13 @@ count_save_file = 0
 def print_status(nome_do_worker):
     print(f'{nome_do_worker} - {datetime.now()}: Participantes na fila: {link_jobs.qsize()} / Downloads na fila: {download_jobs.qsize()} / Arquivos na fila: {process_jobs.qsize()}')
 
-def worker_get_link_by_cnpj():
+def worker_get_link_by_cnpj(counter):
     while True:
-        count_link_cnpj += 1
+        counter += 1
         cnpj = link_jobs.get()
         if cnpj is None:
             download_jobs.put(None)
-            print(f'Finalizando get_link_by_cnpj. Execuções: {count_link_cnpj}')
+            print(f'Finalizando get_link_by_cnpj. Execuções: {counter}')
             break
         response = api_handler.get_links_by_cnpj(cnpj, data_de_inicio)
         for _ in response:
@@ -86,7 +86,7 @@ participantes = dao.get_participantes()
 for participante in participantes:
     link_jobs.put(participante[0])
 link_jobs.put(None)
-link_fetch_thread = threading.Thread(target=worker_get_link_by_cnpj, daemon=True)
+link_fetch_thread = threading.Thread(target=worker_get_link_by_cnpj, args=count_link_cnpj, daemon=True)
 link_fetch_thread.start()
 link_fetch_thread.join()
 
