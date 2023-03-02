@@ -25,8 +25,8 @@ download_jobs = Queue()
 process_jobs = Queue(4)
 
 
-def print_status():
-    print(f'{datetime.now()}: Participantes na fila: {link_jobs.qsize()} / Downloads na fila: {download_jobs.qsize()} / Arquivos na fila: {process_jobs.qsize()}')
+def print_status(nome_do_worker):
+    print(f'{nome_do_worker} - {datetime.now()}: Participantes na fila: {link_jobs.qsize()} / Downloads na fila: {download_jobs.qsize()} / Arquivos na fila: {process_jobs.qsize()}')
 
 def worker_get_link_by_cnpj():
     while True:
@@ -40,7 +40,7 @@ def worker_get_link_by_cnpj():
                 continue
             else:
                 download_jobs.put(_)
-        print_status()
+        print_status('get_links')
         link_jobs.task_done()        
 
 
@@ -58,7 +58,7 @@ def worker_get_file_by_link():
                 continue
         except Exception as e:
             raise(e)
-        print_status()
+        print_status('downloads')
         download_jobs.task_done()
 
 
@@ -70,7 +70,7 @@ def worker_save_file_to_db():
             break
         file_parser.parse_file(current_task[0], current_task[1])
         os.remove(current_task[1])        
-        print_status()
+        print_status('processing')
         process_jobs.task_done()
 
 print(f'{datetime.now()}: Conectando ao banco')
