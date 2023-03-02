@@ -30,10 +30,10 @@ def print_status(nome_do_worker):
 
 def worker_get_link_by_cnpj():
     while True:
-        print('Ultima thread: get_link_by_cnpj')
         cnpj = link_jobs.get()
         if cnpj is None:
             download_jobs.put(None)
+            print('Finalizando get_link_by_cnpj')
             break
         response = api_handler.get_links_by_cnpj(cnpj, data_de_inicio)
         for _ in response:
@@ -47,10 +47,10 @@ def worker_get_link_by_cnpj():
 
 def worker_get_file_by_link():
     while True:
-        print('Ultima thread: get_file_by_link')
         link = download_jobs.get()
         if link is None:
             process_jobs.put(None)
+            print('Finalizando get_file_by_link')
             break
         try:
             file_name = api_handler.get_files_by_links(link)
@@ -70,6 +70,7 @@ def worker_save_file_to_db():
         current_task = process_jobs.get()
         if current_task is None:
             process_jobs.task_done()
+            print('Finalizando save_file_to_db')
             break
         file_parser.parse_file(current_task[0], current_task[1])
         os.remove(current_task[1])        
