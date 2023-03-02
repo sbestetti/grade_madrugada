@@ -30,6 +30,7 @@ def print_status(nome_do_worker):
 
 def worker_get_link_by_cnpj():
     while True:
+        print('Ultima thread: get_link_by_cnpj')
         cnpj = link_jobs.get()
         if cnpj is None:
             download_jobs.put(None)
@@ -46,6 +47,7 @@ def worker_get_link_by_cnpj():
 
 def worker_get_file_by_link():
     while True:
+        print('Ultima thread: get_file_by_link')
         link = download_jobs.get()
         if link is None:
             process_jobs.put(None)
@@ -64,6 +66,7 @@ def worker_get_file_by_link():
 
 def worker_save_file_to_db():
     while True:
+        print('Ultima thread: process_file')
         current_task = process_jobs.get()
         if current_task is None:
             process_jobs.task_done()
