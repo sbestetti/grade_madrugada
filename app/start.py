@@ -27,6 +27,8 @@ process_jobs = Queue(4)
 count_link_cnpj = 0
 count_file_by_link = 0
 count_save_file = 0
+count_create = 0
+count_join = 0
 
 
 def print_status(nome_do_worker):
@@ -97,7 +99,11 @@ for i in range(config.app_config['numero_de_threads']):
     working_threads.append(threading.Thread(target=worker_save_file_to_db, daemon=True))
 for i in working_threads:
     i.start()
+    count_create += 1
+    print(f'Creates: {count_create}')
 for i in working_threads:
     i.join()
+    count_join += 1
+    print(f'Joins: {count_join}')
 
 print('\nProcessamento finalizado')
