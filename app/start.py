@@ -24,16 +24,21 @@ link_jobs = Queue()
 download_jobs = Queue()
 process_jobs = Queue(4)
 
+count_link_cnpj = 0
+count_file_by_link = 0
+count_save_file = 0
+
 
 def print_status(nome_do_worker):
     print(f'{nome_do_worker} - {datetime.now()}: Participantes na fila: {link_jobs.qsize()} / Downloads na fila: {download_jobs.qsize()} / Arquivos na fila: {process_jobs.qsize()}')
 
 def worker_get_link_by_cnpj():
     while True:
+        count_link_cnpj += 1
         cnpj = link_jobs.get()
         if cnpj is None:
             download_jobs.put(None)
-            print('Finalizando get_link_by_cnpj')
+            print(f'Finalizando get_link_by_cnpj. Execuções: {count_link_cnpj}')
             break
         response = api_handler.get_links_by_cnpj(cnpj, data_de_inicio)
         for _ in response:
