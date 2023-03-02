@@ -66,7 +66,6 @@ def worker_get_file_by_link():
 
 def worker_save_file_to_db():
     while True:
-        print('Ultima thread: process_file')
         current_task = process_jobs.get()
         if current_task is None:
             process_jobs.task_done()
