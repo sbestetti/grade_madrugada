@@ -14,8 +14,8 @@ import config as cfg
 def parse_file(participante: str, nome_do_arquivo: str) -> int:
     # Move os dados do arquivo recebido para o banco    
     total_de_registros = 0
-    number_of_rows = sum(1 for row in open(nome_do_arquivo, 'r'))
-    number_of_chunks = math.ceil(number_of_rows/cfg.db_config['chunk_size'])
+    # number_of_rows = sum(1 for row in open(nome_do_arquivo, 'r'))
+    # number_of_chunks = math.ceil(number_of_rows/cfg.db_config['chunk_size'])
     with pandas.read_csv(nome_do_arquivo, sep=';', chunksize=cfg.db_config['chunk_size'], on_bad_lines='skip', names=['referencia_externa', 'guid', 'horario', 'codigo_de_erro', 'desc_erro']) as reader:
         chunks_lidos = 1
         for chunk in reader:            
