@@ -25,17 +25,11 @@ link_jobs = Queue()
 download_jobs = Queue()
 process_jobs = Queue(4)
 
-count_link_cnpj = 0
-count_file_by_link = 0
-count_save_file = 0
-count_create = 0
-count_join = 0
-
 
 def print_status(nome_do_worker):
     print(f'{nome_do_worker} - {datetime.now()}: Participantes na fila: {link_jobs.qsize()} / Downloads na fila: {download_jobs.qsize()} / Arquivos na fila: {process_jobs.qsize()}          ', end='\r')
 
-def worker_get_link_by_cnpj(counter):
+def worker_get_link_by_cnpj():
     while True:
         cnpj = link_jobs.get()
         if cnpj is None:
@@ -86,7 +80,7 @@ participantes = dao.get_participantes()
 for participante in participantes:
     link_jobs.put(participante[0])
 link_jobs.put(None)
-link_fetch_thread = threading.Thread(target=worker_get_link_by_cnpj, args=[count_link_cnpj, ], daemon=True)
+link_fetch_thread = threading.Thread(target=worker_get_link_by_cnpj, daemon=True)
 link_fetch_thread.start()
 link_fetch_thread.join()
 
