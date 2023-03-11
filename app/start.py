@@ -25,6 +25,9 @@ link_jobs = Queue()
 download_jobs = Queue()
 process_jobs = Queue(4)
 
+qtde_de_arquivos = 0
+qtde_de_registros = 0
+
 
 def print_status(nome_do_worker):
     print(f'{nome_do_worker} - {datetime.now()}: Participantes na fila: {link_jobs.qsize()} / Downloads na fila: {download_jobs.qsize()} / Arquivos na fila: {process_jobs.qsize()}          ', end='\r')
@@ -56,6 +59,8 @@ def worker_get_file_by_link():
             file_name = api_handler.get_files_by_links(link)
             if file_name:
                 process_jobs.put([link['participante'], file_name])
+                global qtde_de_arquivos
+                qtde_de_arquivos += 1
             else:
                 continue
         except Exception as e:
@@ -70,7 +75,9 @@ def worker_save_file_to_db():
         if current_task is None:
             process_jobs.task_done()
             break
-        file_parser.parse_file(current_task[0], current_task[1])
+        qtde_registros_processados = file_parser.parse_file(current_task[0], current_task[1])
+        global qtde_de_registros
+        qtde_de_registros += qtde_registros_processados
         os.remove(current_task[1])
         print_status('processing')
         process_jobs.task_done()
@@ -93,4 +100,7 @@ for i in working_threads:
     i.start()
 for i in working_threads:
     i.join()
+
+logging.info(f'Arquivos processados: {qtde_de_arquivos}')
+logging.info(f'Registros processados: {qtde_de_registros}')
 logging.info('----------------------------Finalizando execucao----------------------------')
