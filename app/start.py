@@ -30,7 +30,7 @@ qtde_de_registros = 0
 
 
 def print_status(nome_do_worker):
-    print(f'{nome_do_worker} - {datetime.now()}: Participantes na fila: {link_jobs.qsize()} / Downloads na fila: {download_jobs.qsize()} / Arquivos na fila: {process_jobs.qsize()}          ', end='\r')
+    print(f'{nome_do_worker} - {datetime.now()}: Participantes na fila: {link_jobs.qsize()} / Downloads na fila: {download_jobs.qsize()} / Arquivos na fila: {process_jobs.qsize()}')
 
 def worker_get_link_by_cnpj():
     while True:
