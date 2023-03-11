@@ -10,6 +10,7 @@ import file_parser
 import api_handler
 import dao
 import config
+from log_manager import logging
 
 # Tratando possível argumento de data de início
 if len(sys.argv) == 1:
@@ -80,7 +81,7 @@ def worker_save_file_to_db():
         print_status('processing')
         process_jobs.task_done()
 
-print(f'{datetime.now()}: Iniciando processamento')
+logging.info('----------------------------Iniciando execucao----------------------------')
 participantes = dao.get_participantes()
 for participante in participantes:
     link_jobs.put(participante[0])
@@ -98,5 +99,4 @@ for i in working_threads:
     i.start()
 for i in working_threads:
     i.join()
-
-print('\nProcessamento finalizado')
+logging.info('----------------------------Finalizando execucao----------------------------')

@@ -20,7 +20,7 @@ def parse_file(participante: str, nome_do_arquivo: str) -> int:
         chunks_lidos = 1
         for chunk in reader:            
             registros = list()
-            print(f"{datetime.now()}: Arquivo {nome_do_arquivo} - Lendo chunk {chunks_lidos} de {number_of_chunks}")
+            # print(f"{datetime.now()}: Arquivo {nome_do_arquivo} - Lendo chunk {chunks_lidos} de {number_of_chunks}") --> Desabilitado temporariamente
             for line in chunk.index:
                 registro = {}
                 registro['cnpj'] = str(participante)
