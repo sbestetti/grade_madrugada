@@ -40,7 +40,7 @@ def worker_get_link_by_cnpj(counter):
         cnpj = link_jobs.get()
         if cnpj is None:
             for i in range(config.app_config['numero_de_threads']):
-                download_jobs.put(None)            
+                download_jobs.put(None)
             break
         response = api_handler.get_links_by_cnpj(cnpj, data_de_inicio)
         for _ in response:
@@ -49,7 +49,7 @@ def worker_get_link_by_cnpj(counter):
             else:
                 download_jobs.put(_)
         print_status('get_links')
-        link_jobs.task_done()        
+        link_jobs.task_done()
 
 
 def worker_get_file_by_link():
@@ -65,7 +65,7 @@ def worker_get_file_by_link():
             else:
                 continue
         except Exception as e:
-            raise(e)
+            raise (e)
         print_status('downloads')
         download_jobs.task_done()
 
@@ -77,7 +77,7 @@ def worker_save_file_to_db():
             process_jobs.task_done()
             break
         file_parser.parse_file(current_task[0], current_task[1])
-        os.remove(current_task[1])        
+        os.remove(current_task[1])
         print_status('processing')
         process_jobs.task_done()
 
@@ -86,7 +86,7 @@ participantes = dao.get_participantes()
 for participante in participantes:
     link_jobs.put(participante[0])
 link_jobs.put(None)
-link_fetch_thread = threading.Thread(target=worker_get_link_by_cnpj, args=[count_link_cnpj,], daemon=True)
+link_fetch_thread = threading.Thread(target=worker_get_link_by_cnpj, args=[count_link_cnpj, ], daemon=True)
 link_fetch_thread.start()
 link_fetch_thread.join()
 
