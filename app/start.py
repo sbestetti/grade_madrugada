@@ -86,7 +86,7 @@ logging.info('----------------------------Iniciando execucao--------------------
 #participantes = dao.get_participantes()
 participantes = ['04870413000188']
 for participante in participantes:
-    link_jobs.put(participante[0])
+    link_jobs.put(participante)
 link_jobs.put(None)
 link_fetch_thread = threading.Thread(target=worker_get_link_by_cnpj, daemon=True)
 link_fetch_thread.start()
