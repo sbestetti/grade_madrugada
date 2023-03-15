@@ -83,7 +83,8 @@ def worker_save_file_to_db():
         process_jobs.task_done()
 
 logging.info('----------------------------Iniciando execucao----------------------------')
-participantes = dao.get_participantes()
+#participantes = dao.get_participantes()
+participantes = ['04870413000188']
 for participante in participantes:
     link_jobs.put(participante[0])
 link_jobs.put(None)
