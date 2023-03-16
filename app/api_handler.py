@@ -54,7 +54,7 @@ def get_links_by_cnpj(cnpj: str, data_de_inicio: datetime) -> list:
         response = requests.put(cfg.http_config['url_registros'], headers=header, json=payload)
         response.raise_for_status()
     except requests.exceptions.HTTPError:
-        logging.critical(f'Erro {response.status_code} durante o download.')
+        logging.critical(f'Erro {response.status_code} durante a busca dos arquivos do participante {cnpj}.')
         return arquivos_recebidos
 
     data = response.json()
@@ -85,10 +85,10 @@ def get_files_by_links(link) -> None:
         response.raise_for_status()
         data = response.json()
     except requests.exceptions.HTTPError:
-        print(f'Erro {response.status_code} durante o download do arquivo {link["nome"]}')
+        logging.error(f'Erro {response.status_code} durante o download do arquivo {link["nome"]}')
         return None
     except requests.exceptions.JSONDecodeError as e:
-        print(f'Erro no arquivo {link["nome"]}: {e}')
+        logging.error(f'Erro no arquivo {link["nome"]}: {e}')
         return None
     url_do_arquivo = data['result']
     arquivo = requests.get(url_do_arquivo, stream=True)

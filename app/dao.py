@@ -42,9 +42,9 @@ def connect_to_db():
 
 
 def get_participantes():
-    # Busca a lista atual de CNPJs dos participantes    
+    # Busca a lista atual de CNPJs dos participantes
     db = connect_to_db()
-    cursor = db.cursor()  
+    cursor = db.cursor()
     cursor.execute(GET_PARTICIPANTES_QUERY)
     participantes = cursor.fetchall()
     cursor.close()
@@ -78,7 +78,7 @@ def add_downloaded_file(nome_do_arquivo, participante) -> None:
         cursor.close()
         db.close()
     except Exception as e:
-        logging.critical(f'Erro ao inserir registro no banco: {e}')        
+        logging.critical(f'Erro ao inserir registro no banco: {e}')
 
 
 def check_if_processed(link):
