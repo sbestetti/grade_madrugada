@@ -2,16 +2,16 @@ import os
 import logging
 
 http_config = {
-    'api_secret': 'MjMzOTk2MDcwMDAxOTE6NDhiNWEyM2EtOGZmNy00ZWY5LTk3YzgtOGZhODU0OTAxNTVm',
+    'pai_secret': os.getenv('API_SECRET'),
     'url_registros': 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/enviados?linesPerPage=2000&page=0',
     'ulr_arquivo': 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/urls/download/fileControlId?received=false',
 }
 
 db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'qCFFCFS1',
-    'db_name': 'grade_da_madrugada',
+    'host': os.getenv('DB_HOST'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWD'),
+    'db_name': os.getenv('DB_NAME'),
     'chunk_size': 100000,
 }
 
