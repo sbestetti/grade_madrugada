@@ -32,7 +32,7 @@ def get_tio_headers() -> dict:
         }
     except requests.exceptions.HTTPError as e:
         logging.critical(f'Erro ao criar token de acesso ao portal: {e}')
-        os.kill(os.getpid(), signal.SIGINT)
+        os._exit(1)
     return header
 
 
