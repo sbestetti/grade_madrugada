@@ -2,7 +2,7 @@ import os
 import logging
 
 http_config = {
-    'pai_secret': os.getenv('API_SECRET'),
+    'api_secret': os.getenv('API_SECRET'),
     'url_registros': 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/enviados?linesPerPage=2000&page=0',
     'ulr_arquivo': 'https://publica.cerc.inf.br/app/tio/transaction/arquivos/urls/download/fileControlId?received=false',
 }
