@@ -37,7 +37,7 @@ def connect_to_db():
             database=cfg.db_config['db_name']
         )
     except mysql.connector.DatabaseError as e:
-        logging.critical(f'Erro na conexão do banco: {e}')
+        logging.critical(f'Erro na conexão do banco: {e}. Encerrando a execução')
         os._exit(1)
     return connection
 
@@ -79,7 +79,7 @@ def add_downloaded_file(nome_do_arquivo, participante) -> None:
         cursor.close()
         db.close()
     except Exception as e:
-        logging.critical(f'Erro ao inserir registro no banco: {e}')
+        logging.critical(f'Erro ao inserir registro no banco: {e}. Encerrando a execução')
         os._exit(1)
 
 

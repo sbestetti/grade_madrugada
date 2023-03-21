@@ -31,7 +31,7 @@ def get_tio_headers() -> dict:
             'Authorization': f'Bearer {token}'
         }
     except requests.exceptions.HTTPError as e:
-        logging.critical(f'Erro ao criar token de acesso ao portal: {e}')
+        logging.critical(f'Erro ao criar token de acesso ao portal: {e}. Encerrando a execução')
         os._exit(1)
     return header
 
