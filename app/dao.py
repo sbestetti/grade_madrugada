@@ -1,5 +1,6 @@
 # Sistema
 from datetime import date
+import os
 
 # Ferramentas
 import mysql.connector
@@ -37,7 +38,7 @@ def connect_to_db():
         )
     except mysql.connector.DatabaseError as e:
         logging.critical(f'Erro na conexão do banco: {e}')
-        exit()
+        os._exit(1)
     return connection
 
 
@@ -79,6 +80,7 @@ def add_downloaded_file(nome_do_arquivo, participante) -> None:
         db.close()
     except Exception as e:
         logging.critical(f'Erro ao inserir registro no banco: {e}')
+        os._exit(1)
 
 
 def check_if_processed(link):
