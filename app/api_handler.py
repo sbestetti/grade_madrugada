@@ -45,7 +45,8 @@ def get_links_by_cnpj(cnpj: str, data_de_inicio: datetime) -> list:
         'companyDocument': cnpj,
         'fileLayoutId': '73e4ad69-9aa0-43d6-9931-3ef108b0fd0c',
         'finalDate': date.today().strftime('%Y-%m-%d'),
-        'startDate': data_de_inicio.strftime('%Y-%m-%d')
+        'startDate': data_de_inicio.strftime('%Y-%m-%d'),
+        'status': 3
     }
 
     header = get_tio_headers()
