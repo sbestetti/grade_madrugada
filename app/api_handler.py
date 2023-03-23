@@ -20,7 +20,6 @@ def get_tio_headers() -> dict:
         data=form_data,
         headers=headers
     )
-    response.raise_for_status()
     token = response.json()['access_token']
     header = {
         'Authorization': f'Bearer {token}'
@@ -41,7 +40,6 @@ def get_links_by_cnpj(cnpj: str, data_de_inicio: datetime) -> list:
     }
     header = get_tio_headers()
     response = requests.put(cfg.http_config['url_registros'], headers=header, json=payload)
-    response.raise_for_status()
     data = response.json()
     for arquivo in data['result']['content']:
         _ = {
@@ -63,7 +61,6 @@ def get_files_by_links(link) -> None:
     header = get_tio_headers()
     url_atual = cfg.http_config['ulr_arquivo'].replace('fileControlId', link['id'])
     response = requests.get(url_atual, headers=header)
-    response.raise_for_status()
     data = response.json()
     url_do_arquivo = data['result']
     arquivo = requests.get(url_do_arquivo, stream=True)
