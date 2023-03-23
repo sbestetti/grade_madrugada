@@ -60,11 +60,15 @@ def get_files_by_links(link) -> None:
         return False
     header = get_tio_headers()
     url_atual = cfg.http_config['ulr_arquivo'].replace('fileControlId', link['id'])
-    response = requests.get(url_atual, headers=header)
-    data = response.json()
-    url_do_arquivo = data['result']
-    arquivo = requests.get(url_do_arquivo, stream=True)
-    with open(link['nome'], 'ab') as arquivo_local:
-        for chunk in arquivo.iter_content(chunk_size=1024):
-            arquivo_local.write(chunk)
-    return link['nome']
+    try:
+        response = requests.get(url_atual, headers=header)
+        response.raise_for_status()
+        data = response.json()
+        url_do_arquivo = data['result']
+        arquivo = requests.get(url_do_arquivo, stream=True)
+        with open(link['nome'], 'ab') as arquivo_local:
+            for chunk in arquivo.iter_content(chunk_size=1024):
+                arquivo_local.write(chunk)
+        return link['nome']
+    except Exception as e:
+        raise e
