@@ -55,16 +55,13 @@ def worker_get_file_by_link():
         if link is None:
             process_jobs.put(None)
             break
-        try:
-            file_name = api_handler.get_files_by_links(link)
-            if file_name:
-                process_jobs.put([link['participante'], file_name])
-                global qtde_de_arquivos
-                qtde_de_arquivos += 1
-            else:
-                continue
-        except Exception as e:
-            raise (e)
+        file_name = api_handler.get_files_by_links(link)
+        if file_name:
+            process_jobs.put([link['participante'], file_name])
+            global qtde_de_arquivos
+            qtde_de_arquivos += 1
+        else:
+            continue        
         print_status('downloads')
         download_jobs.task_done()
 
