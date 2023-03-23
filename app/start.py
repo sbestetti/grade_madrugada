@@ -59,15 +59,14 @@ def worker_get_file_by_link():
             break
         try:
             file_name = api_handler.get_files_by_links(link)
+            if file_name:
+                process_jobs.put([link['participante'], file_name])
+                global qtde_de_arquivos
+                qtde_de_arquivos += 1
+            else:
+                continue        
         except Exception as e:
             print(f'Bloco TRY da raíz do worker\n{e}')
-        if file_name:
-            process_jobs.put([link['participante'], file_name])
-            global qtde_de_arquivos
-            qtde_de_arquivos += 1
-        else:
-            print('Continuando o loop')
-            continue        
         print_status('downloads')
         download_jobs.task_done()
 
