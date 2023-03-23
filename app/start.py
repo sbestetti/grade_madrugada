@@ -97,7 +97,7 @@ for i in range(config.app_config['numero_de_threads']):
     working_threads.append(threading.Thread(target=worker_get_file_by_link, daemon=True))
     working_threads.append(threading.Thread(target=worker_save_file_to_db, daemon=True))
 
-monitoring_thread = start_monitoring()
+monitoring_thread = start_monitoring(seconds_frozen=300)
 
 for i in working_threads:
     i.start()
