@@ -61,6 +61,7 @@ def worker_get_file_by_link():
             global qtde_de_arquivos
             qtde_de_arquivos += 1
         else:
+            print('Continuando o loop')
             continue        
         print_status('downloads')
         download_jobs.task_done()
