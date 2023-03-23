@@ -57,7 +57,10 @@ def worker_get_file_by_link():
         if link is None:
             process_jobs.put(None)
             break
-        file_name = api_handler.get_files_by_links(link)
+        try:
+            file_name = api_handler.get_files_by_links(link)
+        except Exception as e:
+            print(f'Bloco TRY da raíz do worker\n{e}')
         if file_name:
             process_jobs.put([link['participante'], file_name])
             global qtde_de_arquivos
