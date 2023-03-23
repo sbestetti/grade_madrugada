@@ -5,6 +5,8 @@ import threading
 from datetime import datetime, timedelta
 from queue import Queue
 
+from hanging_threads import start_monitoring
+
 # Imports do aplicativo
 import file_parser
 import api_handler
@@ -94,10 +96,15 @@ working_threads = list()
 for i in range(config.app_config['numero_de_threads']):
     working_threads.append(threading.Thread(target=worker_get_file_by_link, daemon=True))
     working_threads.append(threading.Thread(target=worker_save_file_to_db, daemon=True))
+
+monitoring_thread = start_monitoring()
+
 for i in working_threads:
     i.start()
 for i in working_threads:
     i.join()
+
+monitoring_thread.stop()
 
 logging.info(f'Arquivos processados: {qtde_de_arquivos}')
 logging.info(f'Registros processados: {qtde_de_registros}')
