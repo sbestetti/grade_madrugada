@@ -26,3 +26,7 @@ app_config = {
     'tmp_file': './tmp_file',
     'numero_de_threads': 16
 }
+
+bucket_config = {
+    'name': 'integration-accreditors-prd',
+}
