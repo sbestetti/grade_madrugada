@@ -1,14 +1,15 @@
 -- Stored procedure que atualiza a tabela de sumário com os dados novos
 DELIMITER //
 
-CREATE PROCEDURE atualizar_sumario() BEGIN
+CREATE PROCEDURE atualizar_sumario()
+BEGIN
   
-  set 
-    session internal_tmp_mem_storage_engine=Memory;
+  SET SESSION internal_tmp_mem_storage_engine=Memory;
   
-  CREATE TABLE 
-    tmp_sumario 
-  AS SELECT
+  DELETE FROM sumario WHERE data <= DATE(NOW()) - INTERVAL 15 DAY;
+  
+  CREATE TABLE tmp_sumario AS
+    SELECT
       r.data,
       p.nome,
       r.codigo_de_erro,
@@ -19,23 +20,31 @@ CREATE PROCEDURE atualizar_sumario() BEGIN
       LEFT JOIN participantes AS p ON r.cnpj = p.cnpj
       LEFT JOIN erros AS e ON r.codigo_de_erro = e.codigo_de_erro
     WHERE
-      r.data >= DATE(NOW()) - INTERVAL 14 DAY    
+      r.data >= DATE(NOW())
     GROUP BY
       r.data,
       p.nome,
       r.codigo_de_erro;
   
-  DROP TABLE IF EXISTS sumario;
+  DELETE FROM sumario WHERE data = DATE(NOW());
   
-  RENAME TABLE tmp_sumario TO sumario;
+  INSERT INTO
+    sumario (
+      data,
+      nome,
+      codigo_de_erro,
+      descricao,
+      total
+    )
+  SELECT * FROM tmp_sumario;
   
   UPDATE 
-    ultima_atualizacao
-  SET
-    horario = NOW()
-  WHERE 
-    tabela = 'sumario';
-
+        ultima_atualizacao
+      SET
+        horario = NOW()
+      WHERE 
+        tabela = 'sumario';
+  
+  DROP TABLE tmp_sumario;
+  
 END //
-
-DELIMITER ;
