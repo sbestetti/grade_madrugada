@@ -3,6 +3,7 @@ from datetime import date, datetime
 
 # Ferramentas
 import requests
+from google.cloud import storage
 
 # Internos
 import config as cfg
@@ -58,17 +59,18 @@ def get_files_by_links(link) -> None:
     processed_file = dao.check_if_processed(link)
     if processed_file:
         return False
-    header = get_tio_headers()
-    url_atual = cfg.http_config['ulr_arquivo'].replace('fileControlId', link['id'])
+    
     try:
-        response = requests.get(url_atual, headers=header)
-        response.raise_for_status()
-        data = response.json()
-        url_do_arquivo = data['result']
-        arquivo = requests.get(url_do_arquivo, stream=True)
-        with open(link['nome'], 'ab') as arquivo_local:
-            for chunk in arquivo.iter_content(chunk_size=1024):
-                arquivo_local.write(chunk)
-        return link['nome']
+        storage_client = storage.Client()
+        file_name = link['nome']
+        cnpj = link['participante']
+        file_name_bucket = file_name.replace(cnpj[0:8], cnpj).split('.')[0]
+        blobs = storage_client.list_blobs(bucket_or_name=cfg.bucket_config['name'], prefix=f'out/{file_name_bucket}', delimiter="/")
+        
+        for blob in blobs:
+            blob.download_to_filename(f'./{file_name}')
+           
+
+        return file_name
     except Exception as e:
         raise e
