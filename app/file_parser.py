@@ -6,7 +6,6 @@ import math
 import pandas
 
 # Internos
-from log_manager import logging
 import dao
 import config as cfg
 
@@ -38,10 +37,7 @@ def parse_file(participante: str, nome_do_arquivo: str) -> int:
                 )
                 registro['data'] = new_time.date()
                 registros.append(registro)
-            try:
-                dao.save_records(registros)
-            except Exception as e:
-                raise e
+            dao.save_records(registros)            
             total_de_registros = total_de_registros + len(registros)
             chunks_lidos += 1
         dao.add_downloaded_file(nome_do_arquivo, participante)

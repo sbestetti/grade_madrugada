@@ -5,6 +5,10 @@ import threading
 from datetime import datetime, timedelta
 from queue import Queue
 
+from hanging_threads import start_monitoring
+
+import traceback
+
 # Imports do aplicativo
 import file_parser
 import api_handler
@@ -23,7 +27,7 @@ data_de_inicio = data_de_inicio.date()
 
 link_jobs = Queue()
 download_jobs = Queue()
-process_jobs = Queue(4)
+process_jobs = Queue(16)
 
 qtde_de_arquivos = 0
 qtde_de_registros = 0
@@ -57,14 +61,12 @@ def worker_get_file_by_link():
             break
         try:
             file_name = api_handler.get_files_by_links(link)
-            if file_name:
-                process_jobs.put([link['participante'], file_name])
-                global qtde_de_arquivos
-                qtde_de_arquivos += 1
-            else:
-                continue
+            process_jobs.put([link['participante'], file_name])
+            global qtde_de_arquivos
+            qtde_de_arquivos += 1
         except Exception as e:
-            raise (e)
+            print(f'Bloco TRY da raíz do worker\n{e}')
+            traceback.print_exc()
         print_status('downloads')
         download_jobs.task_done()
 
@@ -96,10 +98,15 @@ working_threads = list()
 for i in range(config.app_config['numero_de_threads']):
     working_threads.append(threading.Thread(target=worker_get_file_by_link, daemon=True))
     working_threads.append(threading.Thread(target=worker_save_file_to_db, daemon=True))
+
+monitoring_thread = start_monitoring(seconds_frozen=300)
+
 for i in working_threads:
     i.start()
 for i in working_threads:
     i.join()
+
+monitoring_thread.stop()
 
 logging.info(f'Arquivos processados: {qtde_de_arquivos}')
 logging.info(f'Registros processados: {qtde_de_registros}')
