@@ -7,6 +7,8 @@ from queue import Queue
 
 from hanging_threads import start_monitoring
 
+import traceback
+
 # Imports do aplicativo
 import file_parser
 import api_handler
@@ -25,7 +27,7 @@ data_de_inicio = data_de_inicio.date()
 
 link_jobs = Queue()
 download_jobs = Queue()
-process_jobs = Queue(4)
+process_jobs = Queue(16)
 
 qtde_de_arquivos = 0
 qtde_de_registros = 0
@@ -64,6 +66,7 @@ def worker_get_file_by_link():
             qtde_de_arquivos += 1
         except Exception as e:
             print(f'Bloco TRY da raíz do worker\n{e}')
+            traceback.print_exc()
         print_status('downloads')
         download_jobs.task_done()
 
