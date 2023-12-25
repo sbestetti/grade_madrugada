@@ -4,26 +4,48 @@ DELIMITER //
 CREATE PROCEDURE atualizar_historico()
 
 BEGIN
-
-    set session internal_tmp_mem_storage_engine=Memory;
-
-    DELETE FROM historico WHERE data >= DATE(NOW());
-
-    INSERT INTO historico
-        SELECT 
-            registros.data,
-            participantes.nome,
-            COUNT(*) AS total 
-    FROM 
-        registros
-    JOIN 
-        participantes ON registros.cnpj = participantes.cnpj
-    WHERE 
-        data >= DATE(NOW())
-    GROUP BY 
-        registros.data,
-        participantes.nome;
-
-    TRUNCATE TABLE registros;
-
+  
+  SET SESSION internal_tmp_mem_storage_engine=Memory;
+  
+  DELETE FROM sumario WHERE data <= DATE(NOW()) - INTERVAL 15 DAY;
+  
+  CREATE TABLE tmp_sumario AS
+    SELECT
+      r.data,
+      p.nome,
+      r.codigo_de_erro,
+      e.descricao,
+      COUNT(*) AS total
+    FROM
+      registros AS r
+      LEFT JOIN participantes AS p ON r.cnpj = p.cnpj
+      LEFT JOIN erros AS e ON r.codigo_de_erro = e.codigo_de_erro
+    WHERE
+      r.data >= DATE(NOW())
+    GROUP BY
+      r.data,
+      p.nome,
+      r.codigo_de_erro;
+  
+  DELETE FROM sumario WHERE data = DATE(NOW());
+  
+  INSERT INTO
+    sumario (
+      data,
+      nome,
+      codigo_de_erro,
+      descricao,
+      total
+    )
+  SELECT * FROM tmp_sumario;
+  
+  UPDATE 
+        ultima_atualizacao
+      SET
+        horario = NOW()
+      WHERE 
+        tabela = 'sumario';
+  
+  DROP TABLE tmp_sumario;
+  
 END //
